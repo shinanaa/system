@@ -84,8 +84,9 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loginForm.url = 'loginOn'
-          this.LoginByUsername(this.loginForm).then(res => {
+          this.LoginByUsername(this.loginForm).then((res) => {
             if (res.errcode === ERR_CODE) {
+              console.log(123)
               this.$router.push({ path: '/' })
             } else {
               console.log(res)
@@ -95,7 +96,7 @@ export default {
                 type: 'error'
               })
             }
-          }).catch(error => {
+          }).catch((error) => {
             console.log(error)
           })
         } else {
