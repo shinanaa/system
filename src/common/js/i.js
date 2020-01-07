@@ -4,10 +4,11 @@ const i = {
   changePwd: { url: 'gateway/system/system/user/updatePassword' },
   // 用户管理
   getUserTree: { url: 'gateway/admin/admin/adminUser/queryAllUser' },
-  getUserInfo: { url: 'gateway/admin/admin/adminUser/queryAllUserWithPage' }, // 分页获取用户数据
-  editUserInfo: { url: 'gateway/admin/admin/adminUser/updateUser' },
-  addUserInfo: { url: 'gateway/admin/admin/adminUser/insertUser' },
-  deleteUserInfo: { url: 'gateway/admin/admin/adminUser/deleteUser' },
+  getUserById: { url: 'gateway/system/system/user/queryUserById' },
+  getUserInfo: { url: 'gateway/system/system/user/queryAllUserWithPage' }, // 分页获取用户数据
+  editUserInfo: { url: 'gateway/system/system/user/updateUser' },
+  addUserInfo: { url: 'gateway/system/system/user/insertUser' },
+  deleteUserInfo: { url: 'gateway/system/system/user/deleteUser' },
   // 模块管理
   getModuleTree: { url: 'gateway/admin/admin/module/queryModuleList' },
   getModuleInfo: { url: 'gateway/admin/admin/module/queryModuleListPage' },
@@ -41,7 +42,15 @@ const i = {
   getNoticeById: { url: 'gateway/admin/admin/notice/queryNoticeById' },
   addNoticeInfo: { url: 'gateway/admin/admin/notice/saveNoticeInfo' },
   editNoticeInfo: { url: 'gateway/admin/admin/notice/updateNotice' },
-  deleteNoticeInfo: { url: 'gateway/admin/admin/notice/deleteNoticeById' }
+  deleteNoticeInfo: { url: 'gateway/admin/admin/notice/deleteNoticeById' },
+  // 部门管理
+  getDepartmentTree: { url: 'gateway/system/system/department/queryDepartmentTree' },
+  getDepartmentPersonTree: { url: 'gateway/system/system/department/queryDepartmentPersonTree' },
+  getDepartmentInfo: { url: 'gateway/system/system/department/queryDepartmentListPage' },
+  getDepartmentById: { url: 'gateway/system/system/department/queryDepartmentById' },
+  addDepartmentInfo: { url: 'gateway/system/system/department/saveDepartment' },
+  editDepartmentInfo: { url: 'gateway/system/system/department/updateDepartment' },
+  deleteDepartmentInfo: { url: 'gateway/system/system/department/deleteDepartmentById' }
 }
 
 export default i

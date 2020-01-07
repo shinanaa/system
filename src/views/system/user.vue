@@ -1,12 +1,12 @@
 <template>
     <div class="user">
       <div class="search">
-        <!--<div class="search-item">-->
-          <!--<span>部门：</span>-->
-          <!--<el-cascader-->
-            <!--v-model="search.department"-->
-            <!--:options="options"></el-cascader>-->
-        <!--</div>-->
+        <div class="search-item">
+          <span>部门：</span>
+          <el-cascader
+            v-model="search.department"
+            :options="departments"></el-cascader>
+        </div>
         <div class="search-item">
           <span>角色：</span>
           <el-select v-model="search.role" placeholder="请选择">
@@ -142,7 +142,7 @@
 
 <script>
 import {getUserList, editUserItem, addUserItem, deleteUserItem} from '@/api/user'
-import {getRoleTree} from '@/api/role'
+// import {getRoleTree} from '@/api/role'
 import {ERR_CODE} from 'common/js/config'
 export default {
   name: 'user',
@@ -150,11 +150,12 @@ export default {
     return {
       listType: true,
       search: {
-        // department: [],
+        department: [],
         role: '',
         userName: '',
         state: ''
       },
+      departments: [],
       states: [
         {value: '', label: '全部'},
         {value: 'N', label: '停用'},
@@ -204,21 +205,21 @@ export default {
     }
   },
   created () {
-    this._getUserList(this.pageSize, this.currentPage)
+    this._getUserList(this.search)
     // 获取搜索中角色列表
-    getRoleTree('getRoleTree').then((res) => {
-      if (res.errcode === ERR_CODE) {
-        let roleList = res.list
-        roleList.map((item) => {
-          let roleItem = {}
-          roleItem.label = item.mc
-          roleItem.value = item.jsid
-          this.roles.push(roleItem)
-        })
-      } else {
-        return false
-      }
-    })
+    // getRoleTree('getRoleTree').then((res) => {
+    //   if (res.errcode === ERR_CODE) {
+    //     let roleList = res.list
+    //     roleList.map((item) => {
+    //       let roleItem = {}
+    //       roleItem.label = item.mc
+    //       roleItem.value = item.jsid
+    //       this.roles.push(roleItem)
+    //     })
+    //   } else {
+    //     return false
+    //   }
+    // })
   },
   methods: {
     searchUser () {
@@ -245,7 +246,8 @@ export default {
       this.isAdd = false
     },
     pageChange (val) {
-      this._getUserList(this.pageSize, val)
+      this.currentPage = val
+      this._getUserList(this.search)
     },
     cancelUserSet () {
       this.showUserDialog = false
@@ -278,7 +280,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getUserList(this.pageSize, this.currentPage)
+          this._getUserList(this.search)
         } else {
           this.$message({
             showClose: true,
@@ -307,7 +309,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getUserList(this.pageSize, this.currentPage)
+          this._getUserList(this.search)
         } else {
           this.cancelUserSet()
           this.$message({
@@ -343,7 +345,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getUserList(this.pageSize, this.currentPage)
+          this._getUserList(this.search)
         } else {
           this.cancelUserSet()
           this.$message({
@@ -354,29 +356,32 @@ export default {
         }
       })
     },
-    _getSearchList (searchParmas) {
+    // _getSearchList (searchParmas) {
+    //   const getInfo = {
+    //     mc: searchParmas.userName,
+    //     jsid: searchParmas.role,
+    //     zt: searchParmas.state,
+    //     pageSize: searchParmas.pageSize,
+    //     pageCurrent: searchParmas.currentPage,
+    //     url: 'getUserInfo'
+    //   }
+    //   getUserList(getInfo).then((res) => {
+    //     if (res.errcode === ERR_CODE) {
+    //       this.userList = res.rows
+    //       this.total = res.totalCount
+    //     }
+    //     console.log(res)
+    //   }).catch((err) => {
+    //     console.log(err)
+    //   })
+    // },
+    _getUserList (params) {
       const getInfo = {
-        mc: searchParmas.userName,
-        jsid: searchParmas.role,
-        zt: searchParmas.state,
-        pageSize: searchParmas.pageSize,
-        pageCurrent: searchParmas.currentPage,
-        url: 'getUserInfo'
-      }
-      getUserList(getInfo).then((res) => {
-        if (res.errcode === ERR_CODE) {
-          this.userList = res.rows
-          this.total = res.totalCount
-        }
-        console.log(res)
-      }).catch((err) => {
-        console.log(err)
-      })
-    },
-    _getUserList (pageSize, currentPage) {
-      const getInfo = {
-        pageSize: pageSize,
-        pageCurrent: currentPage,
+        mc: params.userName,
+        jsid: params.role,
+        zt: params.state,
+        pageSize: this.pageSize,
+        pageCurrent: this.currentPage,
         url: 'getUserInfo'
       }
       console.log(getInfo)
