@@ -49,7 +49,7 @@
             <el-table-column prop="yhmc" label="名称"></el-table-column>
             <el-table-column prop="dm" label="代码"></el-table-column>
             <el-table-column prop="jsmc" label="角色"></el-table-column>
-            <!--<el-table-column prop="department" label="部门"></el-table-column>-->
+            <el-table-column prop="bmmc" label="部门"></el-table-column>
             <el-table-column prop="XH" label="序号"></el-table-column>
             <el-table-column prop="zt" label="状态">
               <template slot-scope="scope">
@@ -75,6 +75,10 @@
                 <div class="info-item">
                   <span class="info-key">角色</span>
                   <span class="info-value">{{item.jsmc}}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-key">部门</span>
+                  <span class="info-value">{{item.bmmc}}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-key">序号</span>
@@ -103,8 +107,8 @@
       <div class="dialog">
         <el-dialog :title="dialogTitle" :visible.sync="showUserDialog">
           <el-form :model="userForm" ref="UsersForm" :rules="userRules">
-            <el-form-item label="名称" :label-width="formLabelWidth" prop="yhmc">
-              <el-input type="text" v-model="userForm.yhmc"></el-input>
+            <el-form-item label="名称" :label-width="formLabelWidth" prop="mc">
+              <el-input type="text" v-model="userForm.mc"></el-input>
             </el-form-item>
             <el-form-item label="代码" :label-width="formLabelWidth" prop="dm">
               <el-input type="text" v-model="userForm.dm"></el-input>
@@ -122,8 +126,11 @@
                 </el-option>
               </el-select>
             </el-form-item>
+            <el-form-item label="部门" :label-width="formLabelWidth" prop="XH">
+              <el-tree :data="departments" :props="departmentsTree" show-checkbox ref="departmentsTree" node-key="value"></el-tree>
+            </el-form-item>
             <el-form-item label="序号" :label-width="formLabelWidth" prop="XH">
-              <el-input type="text" v-model="userForm.XH"></el-input>
+              <el-input type="text" v-model="userForm.xh"></el-input>
             </el-form-item>
             <el-form-item label="状态" :label-width="formLabelWidth" prop="zt">
               <el-select v-model="userForm.zt" placeholder="请选择">
@@ -141,8 +148,9 @@
 </template>
 
 <script>
-import {getUserList, editUserItem, addUserItem, deleteUserItem} from '@/api/user'
-// import {getRoleTree} from '@/api/role'
+import {getUserList, editUserItem, addUserItem, deleteUserItem, getUserItem} from '@/api/user'
+import {getRoleTree} from '@/api/role'
+import {getDepartmentTree} from '@/api/department'
 import {ERR_CODE} from 'common/js/config'
 export default {
   name: 'user',
@@ -171,11 +179,10 @@ export default {
       isAdd: true,
       showUserDialog: false,
       userForm: {
-        yhmc: '',
+        mc: '',
         dm: '',
         mm: '',
-        jsmc: '',
-        XH: '',
+        xh: '',
         zt: '',
         yhid: '',
         yhjsid: []
@@ -190,6 +197,10 @@ export default {
         mm: [
           { required: true, message: '密码不能为空', trigger: 'blur' }
         ]
+      },
+      departmentsTree: {
+        label: 'label',
+        children: 'children'
       },
       formLabelWidth: '60px'
     }
@@ -207,26 +218,47 @@ export default {
   created () {
     this._getUserList(this.search)
     // 获取搜索中角色列表
-    // getRoleTree('getRoleTree').then((res) => {
-    //   if (res.errcode === ERR_CODE) {
-    //     let roleList = res.list
-    //     roleList.map((item) => {
-    //       let roleItem = {}
-    //       roleItem.label = item.mc
-    //       roleItem.value = item.jsid
-    //       this.roles.push(roleItem)
-    //     })
-    //   } else {
-    //     return false
-    //   }
-    // })
+    getRoleTree('getRoleTree').then((res) => {
+      if (res.errcode === ERR_CODE) {
+        let roleList = res.list
+        roleList.map((item) => {
+          let roleItem = {}
+          roleItem.label = item.mc
+          roleItem.value = item.jsid
+          this.roles.push(roleItem)
+        })
+      } else {
+        return false
+      }
+    })
+    // 获取搜索中的部门列表
+    getDepartmentTree('getDepartmentTree').then((res) => {
+      if (res.errcode === ERR_CODE) {
+        console.log(res)
+        let departmentsList = res.list
+        departmentsList.map((arr) => {
+          if (arr.children.length) {
+            console.log(arr)
+            arr.children.map((item) => {
+              if (item.children.length) {
+                console.log(item)
+              } else {
+                delete item.children
+              }
+            })
+          } else {
+            delete arr.children
+          }
+        })
+        this.departments = res.list
+      }
+    }).catch((err) => {
+      console.log(err)
+    })
   },
   methods: {
     searchUser () {
-      const searchParmas = JSON.parse(JSON.stringify(this.search))
-      searchParmas.pageSize = this.pageSize
-      searchParmas.pageCurrent = this.pageCurrent
-      this._getSearchList(searchParmas)
+      this._getUserList(this.search)
     },
     deleteUser (rowData) {
       console.log(rowData)
@@ -237,13 +269,14 @@ export default {
       this.isAdd = true
     },
     editUser (rowData) {
-      console.log(rowData)
-      this.userForm = JSON.parse(JSON.stringify(rowData))
-      if (this.userForm.mm) {
-        this.userForm.mm = '******'
-      }
+      // console.log(rowData.yhid)
+      // this.userForm = JSON.parse(JSON.stringify(rowData))
+      // if (this.userForm.mm) {
+      //   this.userForm.mm = '******'
+      // }
       this.showUserDialog = true
       this.isAdd = false
+      this._getUserItem(rowData.yhid)
     },
     pageChange (val) {
       this.currentPage = val
@@ -292,35 +325,38 @@ export default {
       })
     },
     _addUserInfo (params) {
-      const addParams = {
-        dm: params.dm,
-        mm: params.mm,
-        mc: params.yhmc,
-        zt: params.zt,
-        yhjsid: params.yhjsid,
-        url: 'addUserInfo'
-      }
-      addUserItem(addParams).then((res) => {
-        console.log(res)
-        if (res.errcode === ERR_CODE) {
-          this.cancelUserSet()
-          this.$message({
-            showClose: true,
-            message: res.errmsg,
-            type: 'success'
-          })
-          this._getUserList(this.search)
-        } else {
-          this.cancelUserSet()
-          this.$message({
-            showClose: true,
-            message: res.errmsg,
-            type: 'error'
-          })
-        }
-      }).catch((err) => {
-        console.log(err)
-      })
+      console.log(params)
+      const checkArr = this.$refs.departmentsTree.getCheckedNodes()
+      console.log(checkArr)
+      // const addParams = {
+      //   dm: params.dm,
+      //   mm: params.mm,
+      //   mc: params.yhmc,
+      //   zt: params.zt,
+      //   yhjsid: params.yhjsid,
+      //   url: 'addUserInfo'
+      // }
+      // addUserItem(addParams).then((res) => {
+      //   console.log(res)
+      //   if (res.errcode === ERR_CODE) {
+      //     this.cancelUserSet()
+      //     this.$message({
+      //       showClose: true,
+      //       message: res.errmsg,
+      //       type: 'success'
+      //     })
+      //     this._getUserList(this.search)
+      //   } else {
+      //     this.cancelUserSet()
+      //     this.$message({
+      //       showClose: true,
+      //       message: res.errmsg,
+      //       type: 'error'
+      //     })
+      //   }
+      // }).catch((err) => {
+      //   console.log(err)
+      // })
     },
     _editUserInfo (params) {
       console.log(params)
@@ -356,25 +392,20 @@ export default {
         }
       })
     },
-    // _getSearchList (searchParmas) {
-    //   const getInfo = {
-    //     mc: searchParmas.userName,
-    //     jsid: searchParmas.role,
-    //     zt: searchParmas.state,
-    //     pageSize: searchParmas.pageSize,
-    //     pageCurrent: searchParmas.currentPage,
-    //     url: 'getUserInfo'
-    //   }
-    //   getUserList(getInfo).then((res) => {
-    //     if (res.errcode === ERR_CODE) {
-    //       this.userList = res.rows
-    //       this.total = res.totalCount
-    //     }
-    //     console.log(res)
-    //   }).catch((err) => {
-    //     console.log(err)
-    //   })
-    // },
+    _getUserItem (userId) {
+      const getInfo = {
+        userId,
+        url: 'getUserById'
+      }
+      getUserItem(getInfo).then((res) => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          // 将返回的值赋值给表单
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+    },
     _getUserList (params) {
       const getInfo = {
         mc: params.userName,

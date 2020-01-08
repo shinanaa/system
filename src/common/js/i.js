@@ -1,5 +1,5 @@
 const i = {
-  loginOn: { url: 'portal/loginAdmin' },
+  loginOn: { url: 'portal/login' },
   logOut: { url: 'portal/logout' },
   changePwd: { url: 'gateway/system/system/user/updatePassword' },
   // 用户管理
@@ -22,7 +22,7 @@ const i = {
   editPluginInfo: { url: 'gateway/admin/admin/plugin/updatePlugin' },
   deletePluginInfo: { url: 'gateway/admin/admin/plugin/deletePluginById' },
   // 角色管理
-  getRoleTree: { url: 'gateway/admin/admin/role/queryRoleList' },
+  getRoleTree: { url: 'gateway/system/system/role/queryRoleList' },
   getRoleInfo: { url: 'gateway/admin/admin/role/queryRoleListPage' },
   getRoleById: { url: 'gateway/admin/admin/role/queryRoleById' },
   addRoleInfo: { url: 'gateway/admin/admin/role/saveRole' },

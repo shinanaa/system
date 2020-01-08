@@ -42,6 +42,13 @@ export function deleteUserItem (deleteParams) {
   return Http.postRequest(deleteParams.url, data)
 }
 
+export function getUserItem (getInfo) {
+  const data = {
+    yhid: getInfo.userId
+  }
+  return Http.postRequest(getInfo.url, data)
+}
+
 export function getUserTree (url) {
   return Http.postRequest(url)
 }
