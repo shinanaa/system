@@ -74,7 +74,9 @@
         <el-pagination
           hide-on-single-page
           :current-page="currentPage"
+          @current-change="pageChange"
           layout="total, prev, pager, next, jumper"
+          :page-size="pageSize"
           :total="total">
         </el-pagination>
       </div>
@@ -109,7 +111,7 @@
 </template>
 
 <script>
-import {getModuleList, addModuleItem, editModuleItem, deleteModuleItem} from '@/api/module'
+import {getModuleList, addModuleItem, editModuleItem, getMoudleItem} from '@/api/module'
 import {ERR_CODE} from 'common/js/config'
 export default {
   name: 'module',
@@ -162,21 +164,23 @@ export default {
     }
   },
   created () {
-    this._getModuleList(this.pageSize, this.currentPage)
+    this._getModuleList(this.search)
   },
   methods: {
+    pageChange (val) {
+      this.currentPage = val
+      this._getModuleList(this.search)
+    },
     searchModule () {
-      const searchParmas = JSON.parse(JSON.stringify(this.search))
-      searchParmas.pageSize = this.pageSize
-      searchParmas.pageCurrent = this.pageCurrent
-      this._getSearchList(searchParmas)
+      this._getModuleList(this.search)
     },
     deleteModule (rowData) {
       console.log(rowData)
       this._deleteModuleInfo(rowData)
     },
     editModule (rowData) {
-      this.moduleForm = JSON.parse(JSON.stringify(rowData))
+      this._getModuleItem(rowData)
+      // this.moduleForm = JSON.parse(JSON.stringify(rowData))
       this.showUserDialog = true
       this.isAdd = false
     },
@@ -206,14 +210,14 @@ export default {
         mkid: params.mkid,
         url: 'deleteModuleInfo'
       }
-      deleteModuleItem(deleteParams).then((res) => {
+      getMoudleItem(deleteParams).then((res) => {
         if (res.errcode === ERR_CODE) {
           this.$message({
             showClose: true,
             message: res.errmsg,
             type: 'success'
           })
-          this._getModuleList(this.pageSize, this.currentPage)
+          this._getModuleList(this.search)
         } else {
           this.$message({
             showClose: true,
@@ -243,7 +247,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getModuleList(this.pageSize, this.currentPage)
+          this._getModuleList(this.search)
         } else {
           this.cancelUserSet()
           this.$message({
@@ -276,7 +280,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getModuleList(this.pageSize, this.currentPage)
+          this._getModuleList(this.search)
         } else {
           this.cancelUserSet()
           this.$message({
@@ -287,29 +291,29 @@ export default {
         }
       })
     },
-    _getSearchList (searchParmas) {
+    _getModuleItem (params) {
       const getInfo = {
-        mc: searchParmas.userName,
-        zt: searchParmas.state,
-        pageSize: searchParmas.pageSize,
-        pageCurrent: searchParmas.currentPage,
-        url: 'getModuleInfo'
+        mkid: params.mkid,
+        url: 'getModuleById'
       }
-      console.log(getInfo)
-      getModuleList(getInfo).then((res) => {
+      getMoudleItem(getInfo).then((res) => {
         if (res.errcode === ERR_CODE) {
-          this.moduleList = res.rows
-          this.total = res.totalCount
+          this.moduleForm = res.list[0]
+        } else {
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'error'
+          })
         }
-        console.log(res)
-      }).catch((err) => {
-        console.log(err)
       })
     },
-    _getModuleList (pageSize, currentPage) {
+    _getModuleList (params) {
       const getInfo = {
-        pageSize: pageSize,
-        pageCurrent: currentPage,
+        mc: params.userName,
+        zt: params.state,
+        pageSize: this.pageSize,
+        pageCurrent: this.currentPage,
         url: 'getModuleInfo'
       }
       getModuleList(getInfo).then((res) => {

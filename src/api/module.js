@@ -10,6 +10,14 @@ export function getModuleList (userInfo) {
   return Http.postRequest(userInfo.url, data)
 }
 
+// 获取或删除单条数据
+export function getMoudleItem (params) {
+  const data = {
+    mkid: params.mkid
+  }
+  return Http.postRequest(params.url, data)
+}
+
 export function editModuleItem (editParams) {
   const data = {
     mc: editParams.mc,
@@ -31,13 +39,6 @@ export function addModuleItem (addParams) {
     zt: addParams.zt
   }
   return Http.postRequest(addParams.url, data)
-}
-
-export function deleteModuleItem (deleteParams) {
-  const data = {
-    mkid: deleteParams.mkid
-  }
-  return Http.postRequest(deleteParams.url, data)
 }
 
 export function getModuleTree (url) {

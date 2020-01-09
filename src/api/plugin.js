@@ -41,12 +41,19 @@ export function addPluginItem (addParams) {
   return Http.postRequest(addParams.url, data)
 }
 
-export function deletePluginItem (deleteParams) {
+export function getPluginItem (params) {
   const data = {
-    gnid: deleteParams.gnid
+    gnid: params.gnid
   }
-  return Http.postRequest(deleteParams.url, data)
+  return Http.postRequest(params.url, data)
 }
+
+// export function deletePluginItem (deleteParams) {
+//   const data = {
+//     gnid: deleteParams.gnid
+//   }
+//   return Http.postRequest(deleteParams.url, data)
+// }
 
 export function getPluginTree (url) {
   return Http.postRequest(url)

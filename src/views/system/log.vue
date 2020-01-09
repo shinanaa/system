@@ -112,7 +112,16 @@ export default {
   },
   methods: {
     searchLog () {
-      console.log(this.search)
+      this._getLogList(this.search)
+    },
+    pageChange (val) {
+      this.currentPage = val
+      this._getLogList(this.search)
+    },
+    _changeData (date) {
+      return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+    },
+    _getLogList (params) {
       if (this.search.date) {
         if (this.search.date.length) {
           let dateStart = new Date(this.search.date[0])
@@ -127,13 +136,6 @@ export default {
         this.search.dateStart = ''
         this.search.dateEnd = ''
       }
-      this._getLogList(this.search)
-    },
-    pageChange () {},
-    _changeData (date) {
-      return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-    },
-    _getLogList (params) {
       const getInfo = {
         lx: params.type,
         ksrq: params.dateStart,
@@ -145,6 +147,7 @@ export default {
       getLogList(getInfo).then((res) => {
         if (res.errcode === ERR_CODE) {
           console.log(res)
+          this.total = res.totalCount
           this.logList = res.rows
         }
       }).catch((err) => {

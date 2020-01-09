@@ -328,35 +328,35 @@ export default {
       console.log(params)
       const checkArr = this.$refs.departmentsTree.getCheckedNodes()
       console.log(checkArr)
-      // const addParams = {
-      //   dm: params.dm,
-      //   mm: params.mm,
-      //   mc: params.yhmc,
-      //   zt: params.zt,
-      //   yhjsid: params.yhjsid,
-      //   url: 'addUserInfo'
-      // }
-      // addUserItem(addParams).then((res) => {
-      //   console.log(res)
-      //   if (res.errcode === ERR_CODE) {
-      //     this.cancelUserSet()
-      //     this.$message({
-      //       showClose: true,
-      //       message: res.errmsg,
-      //       type: 'success'
-      //     })
-      //     this._getUserList(this.search)
-      //   } else {
-      //     this.cancelUserSet()
-      //     this.$message({
-      //       showClose: true,
-      //       message: res.errmsg,
-      //       type: 'error'
-      //     })
-      //   }
-      // }).catch((err) => {
-      //   console.log(err)
-      // })
+      const addParams = {
+        dm: params.dm,
+        mm: params.mm,
+        mc: params.yhmc,
+        zt: params.zt,
+        yhjsid: params.yhjsid,
+        url: 'addUserInfo'
+      }
+      addUserItem(addParams).then((res) => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          this.cancelUserSet()
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'success'
+          })
+          this._getUserList(this.search)
+        } else {
+          this.cancelUserSet()
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'error'
+          })
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
     },
     _editUserInfo (params) {
       console.log(params)

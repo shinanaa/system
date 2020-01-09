@@ -22,7 +22,7 @@
       <div class="table-wrapper">
         <div class="table-btn">
           <div class="btn-handle">
-            <el-button @click="addModule" type="primary">新增</el-button>
+            <el-button @click="addPlugin" type="primary">新增</el-button>
           </div>
           <div class="btn-change">
             <i class="el-icon-s-fold" :class="{'active' : listType}" @click="listType = true"></i>
@@ -47,7 +47,7 @@
             </el-table-column>
             <el-table-column label="操作" width="150">
               <template slot-scope="scope">
-                <el-button size="mini" type="success" @click="editModule(scope.row)">修改</el-button>
+                <el-button size="mini" type="success" @click="editPlugin(scope.row)">修改</el-button>
                 <el-button size="mini" type="danger" @click="deletePlugin(scope.row)">删除</el-button>
               </template>
             </el-table-column>
@@ -87,7 +87,7 @@
               </div>
             </div>
             <div class="card-btn">
-              <el-button size="mini" type="success" @click="editModule(item)">修改</el-button>
+              <el-button size="mini" type="success" @click="editPlugin(item)">修改</el-button>
               <el-button size="mini" type="danger" @click="deletePlugin(item)">删除</el-button>
             </div>
           </div>
@@ -143,7 +143,7 @@
 </template>
 
 <script>
-import {getPluginList, addPluginItem, editPluginItem, deletePluginItem} from '@/api/plugin'
+import {getPluginList, addPluginItem, editPluginItem, getPluginItem} from '@/api/plugin'
 import {getModuleTree} from '@/api/module'
 import {ERR_CODE} from 'common/js/config'
 export default {
@@ -157,7 +157,7 @@ export default {
         state: ''
       },
       states: [
-        {value: 'all', label: '全部'},
+        {value: '', label: '全部'},
         {value: 'N', label: '停用'},
         {value: 'Y', label: '使用'}
       ],
@@ -202,7 +202,7 @@ export default {
     }
   },
   created () {
-    this._getPluginList(this.pageSize, this.currentPage)
+    this._getPluginList(this.search)
     getModuleTree('getModuleTree').then((res) => {
       if (res.errcode === ERR_CODE) {
         console.log(res)
@@ -214,28 +214,24 @@ export default {
   },
   methods: {
     searchPlugin () {
-      const searchParmas = JSON.parse(JSON.stringify(this.search))
-      searchParmas.pageSize = this.pageSize
-      searchParmas.currentPage = this.currentPage
-      this._getSearchList(searchParmas)
+      this._getPluginList(this.search)
     },
     deletePlugin (rowData) {
       console.log(rowData)
       this._deletePluginInfo(rowData)
     },
-    editModule (rowData) {
-      this.pluginForm = JSON.parse(JSON.stringify(rowData))
-      console.log(this.pluginForm)
+    editPlugin (rowData) {
+      this._getPluginItem(rowData.gnid)
       this.showPluginDialog = true
       this.isAdd = false
     },
-    addModule () {
+    addPlugin () {
       this.showPluginDialog = true
       this.isAdd = true
     },
     pageChange (val) {
       this.currentPage = val
-      this._getPluginList(this.pageSize, val)
+      this._getPluginList(this.search)
     },
     cancelUserSet () {
       this.showPluginDialog = false
@@ -261,14 +257,14 @@ export default {
         gnid: params.gnid,
         url: 'deletePluginInfo'
       }
-      deletePluginItem(deleteParams).then((res) => {
+      getPluginItem(deleteParams).then((res) => {
         if (res.errcode === ERR_CODE) {
           this.$message({
             showClose: true,
             message: res.errmsg,
             type: 'success'
           })
-          this._getPluginList(this.pageSize, this.currentPage)
+          this._getPluginList(this.search)
         } else {
           this.$message({
             showClose: true,
@@ -300,7 +296,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getPluginList(this.pageSize, this.currentPage)
+          this._getPluginList(this.search)
         } else {
           this.cancelUserSet()
           this.$message({
@@ -337,7 +333,7 @@ export default {
             type: 'success'
           })
           console.log(this.currentPage)
-          this._getPluginList(this.pageSize, this.currentPage)
+          this._getPluginList(this.search)
         } else {
           this.cancelUserSet()
           this.$message({
@@ -348,30 +344,30 @@ export default {
         }
       })
     },
-    _getSearchList (searchParmas) {
+    _getPluginItem (gnid) {
       const getInfo = {
-        mkid: searchParmas.module,
-        mcjc: searchParmas.moduleName,
-        zt: searchParmas.state,
-        pageSize: searchParmas.pageSize,
-        pageCurrent: searchParmas.currentPage,
-        url: 'getPluginInfo'
+        gnid,
+        url: 'getPluginById'
       }
-      getPluginList(getInfo).then((res) => {
+      getPluginItem(getInfo).then((res) => {
         if (res.errcode === ERR_CODE) {
-          console.log(res)
-          this.pluginList = res.rows
-          this.total = res.totalCount
+          this.pluginForm = res.list[0]
+        } else {
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'error'
+          })
         }
-        console.log(res)
-      }).catch((err) => {
-        console.log(err)
       })
     },
-    _getPluginList (pageSize, currentPage) {
+    _getPluginList (params) {
       const getInfo = {
-        pageSize: pageSize,
-        pageCurrent: currentPage,
+        mkid: params.module,
+        mcjc: params.moduleName,
+        zt: params.state,
+        pageSize: this.pageSize,
+        pageCurrent: this.currentPage,
         url: 'getPluginInfo'
       }
       getPluginList(getInfo).then((res) => {

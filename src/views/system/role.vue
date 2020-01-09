@@ -99,19 +99,18 @@
             :options="plugins"
             :props="props"></el-cascader>
           </el-form-item>-->
-          <el-form-item label="功能" :label-width="formLabelWidth">
-            <el-tree :data="plugins" :props="pluginTree" show-checkbox ref="pluginTree" node-key="value"></el-tree>
-          </el-form-item>
-          <el-form-item label="用户" :label-width="formLabelWidth">
-            <el-select v-model="roleForm.userids" multiple placeholder="请选择">
-            <el-option v-for="item in userIds" :key="item.id" :label="item.yhmc" :value="item.yhid"></el-option>
-            </el-select>
-          </el-form-item>
-          <!--<el-form-item label="用户" :label-width="formLabelWidth">-->
-            <!--<el-checkbox-group v-model="roleForm.userids">-->
-              <!--<el-checkbox v-for="(item,index) in userIds" :label="item.yhmc" :key="index"></el-checkbox>-->
-            <!--</el-checkbox-group>-->
-          <!--</el-form-item>-->
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="功能" :label-width="formLabelWidth">
+                <el-tree :data="plugins" :props="pluginTree" show-checkbox ref="pluginTree" node-key="value"></el-tree>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="用户" :label-width="formLabelWidth">
+                <el-tree :data="userIds" :props="userTree" show-checkbox ref="userTree" node-key="value"></el-tree>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="cancelRoleSet">取 消</el-button>
@@ -123,7 +122,7 @@
 </template>
 
 <script>
-import {getRoleList, addRoleItem, editRoleItem, deleteRoleItem, getRoleItem} from '@/api/role'
+import {getRoleList, addRoleItem, editRoleItem, getRoleItem} from '@/api/role'
 import {getUserTree} from '@/api/user'
 import {getPluginTree} from '@/api/plugin'
 import {ERR_CODE} from 'common/js/config'
@@ -172,6 +171,10 @@ export default {
         label: 'label',
         children: 'children'
       },
+      userTree: {
+        label: 'label',
+        children: 'children'
+      },
       props: {
         multiple: true
       },
@@ -189,19 +192,15 @@ export default {
     }
   },
   created () {
-    this._getRoleList(this.pageSize, this.currentPage)
+    this._getRoleList(this.search)
   },
   methods: {
     searchRoles () {
-      const searchParmas = JSON.parse(JSON.stringify(this.search))
-      searchParmas.pageSize = this.pageSize
-      searchParmas.pageCurrent = this.pageCurrent
-      console.log(searchParmas)
-      this._getSearchList(searchParmas)
+      this._getRoleList(this.search)
     },
     deleteRole (rowData) {
       console.log(rowData)
-      this._deleteRoleInfo(rowData)
+      this._deleteRoleInfo(rowData.jsid)
     },
     editRole (rowData) {
       this._getTreeList()
@@ -216,7 +215,7 @@ export default {
     },
     pageChange (val) {
       this.currentPage = val
-      this._getRoleList(this.pageSize, val)
+      this._getRoleList(this.search)
     },
     cancelRoleSet () {
       this.showRoleDialog = false
@@ -229,8 +228,16 @@ export default {
           const checkArr = this.$refs.pluginTree.getCheckedNodes()
           this.roleForm.jsgnid = []
           checkArr.filter((item) => {
+            // 后端添加模块的isgn字段后，与用户过滤的方法统一封装
             if (item.isgn !== undefined) {
               this.roleForm.jsgnid.push(item.value)
+            }
+          })
+          const userArr = this.$refs.userTree.getCheckedNodes()
+          this.roleForm.userids = []
+          userArr.filter((item) => {
+            if (item.isPerson) {
+              this.roleForm.userids.push(item.value)
             }
           })
           if (this.isAdd) {
@@ -244,40 +251,37 @@ export default {
       })
     },
     _getTreeList () {
-      if (!this.userIds.length) {
-        getUserTree('getUserTree').then((res) => {
-          console.log(res)
-          if (res.errcode === ERR_CODE) {
-            this.userIds = res.list
-          }
-        }).catch((err) => {
-          console.log(err)
-        })
-      }
-      if (!this.plugins.length) {
-        getPluginTree('getPluginTree').then((res) => {
-          console.log(res)
-          if (res.errcode === ERR_CODE) {
-            this.plugins = res.list
-          }
-        }).catch((err) => {
-          console.log(err)
-        })
-      }
+      // 去除掉若存在不获取的判断，防止数据更新后不获取
+      getUserTree('getDepartmentPersonTree').then((res) => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          this.userIds = res.list
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+      getPluginTree('getPluginTree').then((res) => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          this.plugins = res.list
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
     },
-    _deleteRoleInfo (params) {
+    _deleteRoleInfo (jsid) {
       const deleteParams = {
-        jsid: params.jsid,
+        jsid,
         url: 'deleteRoleInfo'
       }
-      deleteRoleItem(deleteParams).then((res) => {
+      getRoleItem(deleteParams).then((res) => {
         if (res.errcode === ERR_CODE) {
           this.$message({
             showClose: true,
             message: res.errmsg,
             type: 'success'
           })
-          this._getRoleList(this.pageSize, this.currentPage)
+          this._getRoleList(this.search)
         } else {
           this.$message({
             showClose: true,
@@ -306,7 +310,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getRoleList(this.pageSize, this.currentPage)
+          this._getRoleList(this.search)
         } else {
           this.cancelRoleSet()
           this.$message({
@@ -338,7 +342,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getRoleList(this.pageSize, this.currentPage)
+          this._getRoleList(this.search)
         } else {
           this.cancelRoleSet()
           this.$message({
@@ -349,9 +353,9 @@ export default {
         }
       })
     },
-    _getRoleItem (roleId) {
+    _getRoleItem (jsid) {
       const getInfo = {
-        jsid: roleId,
+        jsid,
         url: 'getRoleById'
       }
       getRoleItem(getInfo).then((res) => {
@@ -363,36 +367,20 @@ export default {
           this.roleForm.xh = role.xh
           this.roleForm.zt = role.zt
           this.roleForm.jsid = role.jsid
-          this.roleForm.userids = res.list[0].userids
           this.$refs.pluginTree.setCheckedKeys(res.list[0].gnids)
+          this.$refs.userTree.setCheckedKeys(res.list[0].userids)
           console.log(this.roleForm)
         }
       }).catch((err) => {
         console.log(err)
       })
     },
-    _getSearchList (searchParmas) {
+    _getRoleList (params) {
       const getInfo = {
-        mc: searchParmas.userName,
-        zt: searchParmas.state,
-        pageSize: searchParmas.pageSize,
-        pageCurrent: searchParmas.currentPage,
-        url: 'getRoleInfo'
-      }
-      getRoleList(getInfo).then((res) => {
-        if (res.errcode === ERR_CODE) {
-          this.roleList = res.rows
-          this.total = res.totalCount
-        }
-        console.log(res)
-      }).catch((err) => {
-        console.log(err)
-      })
-    },
-    _getRoleList (pageSize, currentPage) {
-      const getInfo = {
-        pageSize: pageSize,
-        pageCurrent: currentPage,
+        mc: params.userName,
+        zt: params.state,
+        pageSize: this.pageSize,
+        pageCurrent: this.currentPage,
         url: 'getRoleInfo'
       }
       getRoleList(getInfo).then((res) => {
