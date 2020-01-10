@@ -24,7 +24,7 @@ export default new Router({
             { path: '/plugin', component: () => import('@/views/system/plugin') },
             { path: '/role', component: () => import('@/views/system/role') },
             { path: '/log', component: () => import('@/views/system/log') },
-            { path: '/unit', component: () => import('@/views/system/unit') },
+            { path: '/department', component: () => import('@/views/system/department') },
             { path: '/notice', component: () => import('@/views/system/notice') }
           ]
         }

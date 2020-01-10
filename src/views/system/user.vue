@@ -149,8 +149,7 @@
 
 <script>
 import {getUserList, editUserItem, addUserItem, deleteUserItem, getUserItem} from '@/api/user'
-import {getRoleTree} from '@/api/role'
-import {getDepartmentTree} from '@/api/department'
+import {getRoleList, getDepartmentTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 export default {
   name: 'user',
@@ -215,46 +214,12 @@ export default {
       return this.isAdd ? '用户增加' : '用户修改'
     }
   },
-  created () {
+  async created () {
     this._getUserList(this.search)
     // 获取搜索中角色列表
-    getRoleTree('getRoleTree').then((res) => {
-      if (res.errcode === ERR_CODE) {
-        let roleList = res.list
-        roleList.map((item) => {
-          let roleItem = {}
-          roleItem.label = item.mc
-          roleItem.value = item.jsid
-          this.roles.push(roleItem)
-        })
-      } else {
-        return false
-      }
-    })
+    getRoleList(this.roles)
     // 获取搜索中的部门列表
-    getDepartmentTree('getDepartmentTree').then((res) => {
-      if (res.errcode === ERR_CODE) {
-        console.log(res)
-        let departmentsList = res.list
-        departmentsList.map((arr) => {
-          if (arr.children.length) {
-            console.log(arr)
-            arr.children.map((item) => {
-              if (item.children.length) {
-                console.log(item)
-              } else {
-                delete item.children
-              }
-            })
-          } else {
-            delete arr.children
-          }
-        })
-        this.departments = res.list
-      }
-    }).catch((err) => {
-      console.log(err)
-    })
+    this.departments = await getDepartmentTree()
   },
   methods: {
     searchUser () {
@@ -269,11 +234,6 @@ export default {
       this.isAdd = true
     },
     editUser (rowData) {
-      // console.log(rowData.yhid)
-      // this.userForm = JSON.parse(JSON.stringify(rowData))
-      // if (this.userForm.mm) {
-      //   this.userForm.mm = '******'
-      // }
       this.showUserDialog = true
       this.isAdd = false
       this._getUserItem(rowData.yhid)
@@ -401,6 +361,9 @@ export default {
         console.log(res)
         if (res.errcode === ERR_CODE) {
           // 将返回的值赋值给表单
+          // if (this.userForm.mm) {
+          //   this.userForm.mm = '******'
+          // }
         }
       }).catch((err) => {
         console.log(err)

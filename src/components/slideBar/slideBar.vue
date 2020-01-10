@@ -32,9 +32,9 @@
             <span slot="title">日志管理</span>
           </el-menu-item>
         </router-link>
-        <router-link to="/unit">
+        <router-link to="/department">
           <el-menu-item index="6">
-            <span slot="title">单位管理</span>
+            <span slot="title">部门管理</span>
           </el-menu-item>
         </router-link>
         <router-link to="/notice">

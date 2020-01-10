@@ -1,5 +1,5 @@
 <template>
-    <div class="unit">
+    <div class="department">
       <div class="search">
         <div class="search-item">
           <span>名称：</span>
@@ -15,12 +15,12 @@
             <el-option v-for="item in states" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </div>
-        <el-button type="primary" @click="searchUnit">查询</el-button>
+        <el-button type="primary" @click="searchDepartment">查询</el-button>
       </div>
       <div class="table-wrapper">
         <div class="table-btn">
           <div class="btn-handle">
-            <el-button type="primary" @click="addUnit">新增</el-button>
+            <el-button type="primary" @click="addDepartment">新增</el-button>
           </div>
           <div class="btn-change">
             <i class="el-icon-s-fold" :class="{'active' : listType}" @click="listType = true"></i>
@@ -29,30 +29,29 @@
         </div>
         <div v-if="listType" class="table-main">
           <el-table
-            :data="unitList"
+            :data="departmentList"
             style="width: 100%">
             <el-table-column prop="mc" label="名称"></el-table-column>
             <el-table-column prop="dm" label="代码"></el-table-column>
-            <el-table-column prop="lxr" label="联系人"></el-table-column>
-            <el-table-column prop="dh" label="电话"></el-table-column>
-            <el-table-column prop="yx" label="邮箱"></el-table-column>
-            <el-table-column prop="dz" label="地址"></el-table-column>
+            <el-table-column prop="sjbmmc" label="上级部门"></el-table-column>
+            <el-table-column prop="jb" label="级别"></el-table-column>
             <el-table-column prop="xh" label="序号"></el-table-column>
             <el-table-column prop="zt" label="状态">
               <template slot-scope="scope">
-                <span>{{scope.row.zt === 'Y' ? '使用' : '禁用'}}</span>
+                <span v-if="scope.row.zt === 'Y'">使用</span>
+                <span v-if="scope.row.zt === 'N'">禁用</span>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="150">
               <template slot-scope="scope">
-                <el-button size="mini" type="success" @click="editUnit(scope.row)">修改</el-button>
-                <el-button size="mini" type="danger" @click="deleteUnit(scope.row)">删除</el-button>
+                <el-button size="mini" type="success" @click="editDepartment(scope.row)">修改</el-button>
+                <el-button size="mini" type="danger" @click="deleteDepartment(scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
         <div v-if="!listType" class="card-mian">
-          <div class="cardItem" v-for="(item, index) in unitList" :key="index">
+          <div class="cardItem" v-for="(item, index) in departmentList" :key="index">
             <div class="userName">{{item.mc}}</div>
             <div class="infoWrapper">
               <div class="info-item">
@@ -60,20 +59,12 @@
                 <span class="info-value">{{item.dm}}</span>
               </div>
               <div class="info-item">
-                <span class="info-key">联系人</span>
-                <span class="info-value">{{item.lxr}}</span>
+                <span class="info-key">上级部门</span>
+                <span class="info-value">{{item.sjbmmc}}</span>
               </div>
               <div class="info-item">
-                <span class="info-key">电话</span>
-                <span class="info-value">{{item.dh}}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-key">邮箱</span>
-                <span class="info-value">{{item.yx}}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-key">地址</span>
-                <span class="info-value">{{item.dz}}</span>
+                <span class="info-key">级别</span>
+                <span class="info-value">{{item.jb}}</span>
               </div>
               <div class="info-item">
                 <span class="info-key">序号</span>
@@ -81,12 +72,13 @@
               </div>
               <div class="info-item">
                 <span class="info-key">状态</span>
-                <span class="info-value">{{item.zt === 'Y' ? '使用' : '禁用'}}</span>
+                <span v-if="item.zt === 'Y'">使用</span>
+                <span v-if="item.zt === 'N'">禁用</span>
               </div>
             </div>
             <div class="card-btn">
-              <el-button size="mini" type="success" @click="editUnit(item)">修改</el-button>
-              <el-button size="mini" type="danger" @click="deleteUnit(item)">删除</el-button>
+              <el-button size="mini" type="success" @click="editdepartment(item)">修改</el-button>
+              <el-button size="mini" type="danger" @click="deleteDepartment(item)">删除</el-button>
             </div>
           </div>
         </div>
@@ -100,41 +92,52 @@
         </el-pagination>
       </div>
       <div class="dialog">
-        <el-dialog :title="dialogTitle" :visible.sync="showUnitDialog">
-          <el-form :model="unitForm" ref="unitForm" :rules="unitRules">
+        <el-dialog :title="dialogTitle" :visible.sync="showDepartmentDialog">
+          <el-form :model="departmentForm" ref="departmentForm" :rules="departmentRules">
             <el-form-item label="名称" :label-width="formLabelWidth" prop="name">
-              <el-input type="text" v-model="unitForm.name"></el-input>
+              <el-input type="text" v-model="departmentForm.name"></el-input>
             </el-form-item>
             <el-form-item label="代码" :label-width="formLabelWidth" prop="code">
-              <el-input type="text" v-model="unitForm.code"></el-input>
+              <el-input type="text" v-model="departmentForm.code"></el-input>
             </el-form-item>
-            <el-form-item label="联系人" :label-width="formLabelWidth" prop="contacts">
-              <el-input type="text" v-model="unitForm.contacts"></el-input>
-            </el-form-item>
-            <el-form-item label="电话" :label-width="formLabelWidth" prop="tel">
-              <el-input type="text" v-model="unitForm.tel"></el-input>
-            </el-form-item>
-            <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
-              <el-input type="text" v-model="unitForm.email"></el-input>
-            </el-form-item>
-            <el-form-item label="地址" :label-width="formLabelWidth" prop="address">
-              <el-input type="text" v-model="unitForm.address"></el-input>
-            </el-form-item>
-            <el-form-item label="序号" :label-width="formLabelWidth" prop="order">
-              <el-input type="text" v-model="unitForm.order"></el-input>
-            </el-form-item>
-            <el-form-item label="状态" :label-width="formLabelWidth" prop="state">
-              <el-select v-model="unitForm.state" placeholder="请选择">
-                <el-option v-for="item in stateDialog" :key="item.value" :label="item.label" :value="item.value"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="功能" :label-width="formLabelWidth" prop="dwgn">
-              <el-tree :data="plugins" :props="pluginTree" show-checkbox ref="pluginTree" node-key="value"></el-tree>
-            </el-form-item>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="上级部门" :label-width="formLabelWidth" prop="contacts">
+                  <el-tree
+                    :data="departments"
+                    :props="departmentTree"
+                    :expand-on-click-node="false"
+                    ref="departmentTree"
+                    highlight-current
+                    node-key="value"></el-tree>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="级别" :label-width="formLabelWidth" prop="tel">
+                  <el-select v-model="departmentForm.level" placeholder="请选择">
+                    <el-option v-for="item in level" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="序号" :label-width="formLabelWidth" prop="order">
+                  <el-input type="text" v-model="departmentForm.order"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="状态" :label-width="formLabelWidth" prop="state">
+                  <el-select v-model="departmentForm.state" placeholder="请选择">
+                    <el-option v-for="item in stateDialog" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="cancelUserSet">取 消</el-button>
-            <el-button type="primary" @click="submitUnitSet">确 定</el-button>
+            <el-button type="primary" @click="submitDepartmentSet">确 定</el-button>
           </div>
         </el-dialog>
       </div>
@@ -142,10 +145,11 @@
 </template>
 
 <script>
-import {getUnitList, getUnitPluginTree, addUnitItem, editUnitItem, getUnitItem, deleteUnitItem} from '@/api/unit'
+import {getDepartmentList, addDepartmentItem, editDepartmentItem, getDepartmentItem, deleteDepartmentItem} from '@/api/department'
+import {getDepartmentTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 export default {
-  name: 'unit',
+  name: 'department',
   data () {
     return {
       listType: true,
@@ -159,31 +163,34 @@ export default {
         {value: 'N', label: '停用'},
         {value: 'Y', label: '使用'}
       ],
-      unitList: [],
+      departmentList: [],
       // 分页
       total: 0,
       currentPage: 1,
       pageSize: 5,
       // 弹窗
       isAdd: true,
-      showUnitDialog: false,
-      unitForm: {
+      showDepartmentDialog: false,
+      departmentForm: {
         name: '',
         code: '',
-        contacts: '',
-        tel: '',
-        email: '',
-        address: '',
+        level: '',
         order: '',
-        state: '',
-        plugins: []
+        state: ''
       },
-      plugins: [], // 功能树
-      pluginTree: {
+      level: [
+        {value: '1', label: '一级'},
+        {value: '2', label: '二级'},
+        {value: '3', label: '三级'},
+        {value: '4', label: '四级'},
+        {value: '5', label: '五级'}
+      ],
+      departments: [], // 部门树
+      departmentTree: {
         label: 'label',
         children: 'children'
       },
-      unitRules: {
+      departmentRules: {
         name: [
           { required: true, message: '名称不能为空', trigger: 'blur' }
         ],
@@ -204,65 +211,60 @@ export default {
       return stateDialog
     },
     dialogTitle () {
-      return this.isAdd ? '单位增加' : '单位修改'
+      return this.isAdd ? '部门增加' : '部门修改'
     }
   },
   created () {
-    this._getUnitList(this.search)
+    this._getDepartmentList(this.search)
   },
   methods: {
     pageChange (val) {
       this.currentPage = val
-      this._getUnitList(this.pageSize, val)
+      this._getDepartmentList(this.pageSize, val)
     },
-    editUnit (item) {
-      this._getPluginTree()
+    editDepartment (item) {
       this.isAdd = false
-      this.showUnitDialog = true
-      this._getUnitItem(item.dwid)
+      this.showDepartmentDialog = true
+      this._getDepartmentItem(item.dwid)
     },
-    deleteUnit (item) {
+    deleteDepartment (item) {
       console.log(item)
-      this._deleteUnitInfo(item)
+      this._deleteDepartmentInfo(item)
     },
-    addUnit () {
-      this._getPluginTree()
-      this.showUnitDialog = true
+    async addDepartment () {
+      this.departments = await getDepartmentTree()
+      this.showDepartmentDialog = true
       this.isAdd = true
     },
     cancelUserSet () {
-      this.showUnitDialog = false
-      this.$refs.unitForm.resetFields()
-      this.$refs.pluginTree.setCheckedNodes([])
+      this.showDepartmentDialog = false
+      this.$refs.departmentForm.resetFields()
+      this.$refs.departmentTree.setCheckedNodes([])
     },
-    submitUnitSet () {
-      this.$refs.unitForm.validate(valid => {
+    submitDepartmentSet () {
+      this.$refs.departmentForm.validate(valid => {
         if (valid) {
-          const checkArr = this.$refs.pluginTree.getCheckedNodes()
-          checkArr.filter((item) => {
-            if (item.isgn !== undefined) {
-              this.unitForm.plugins.push(item.value)
-            }
-          })
+          this.departmentForm.heightDepartment = this.$refs.departmentTree.getCurrentNode().value
+          console.log(this.departmentForm)
           if (this.isAdd) {
-            this._addUnitInfo(this.unitForm)
+            this._addDepartmentInfo(this.departmentForm)
           } else {
-            this._editUnitInfo(this.unitForm)
+            this._editDepartmentInfo(this.departmentForm)
           }
         } else {
           return false
         }
       })
     },
-    searchUnit () {
-      this._getUnitList(this.search)
+    searchDepartment () {
+      this._getDepartmentList(this.search)
     },
-    _deleteUnitInfo (params) {
+    _deleteDepartmentInfo (params) {
       const deleteParams = {
-        unitId: params.dwid,
+        departmentId: params.bmid,
         url: 'deleteUnitInfo'
       }
-      deleteUnitItem(deleteParams).then((res) => {
+      deleteDepartmentItem(deleteParams).then((res) => {
         console.log(res)
         if (res.errcode === ERR_CODE) {
           this.$message({
@@ -270,7 +272,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getUnitList(this.search)
+          this._getDepartmentList(this.search)
         } else {
           this.$message({
             showClose: true,
@@ -280,10 +282,10 @@ export default {
         }
       })
     },
-    _addUnitInfo (params) {
+    _addDepartmentInfo (params) {
       const addParams = params
-      addParams.url = 'addUnitInfo'
-      addUnitItem(addParams).then((res) => {
+      addParams.url = 'addDepartmentInfo'
+      addDepartmentItem(addParams).then((res) => {
         console.log(res)
         if (res.errcode === ERR_CODE) {
           this.cancelUserSet()
@@ -292,7 +294,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getUnitList(this.search)
+          this._getDepartmentList(this.search)
         } else {
           this.cancelUserSet()
           this.$message({
@@ -305,11 +307,11 @@ export default {
         console.log(err)
       })
     },
-    _editUnitInfo (params) {
+    _editDepartmentInfo (params) {
       const editParams = params
       editParams.url = 'editUnitInfo'
       console.log(editParams)
-      editUnitItem(editParams).then((res) => {
+      editDepartmentItem(editParams).then((res) => {
         console.log(res)
         if (res.errcode === ERR_CODE) {
           this.cancelUserSet()
@@ -318,7 +320,7 @@ export default {
             message: res.errmsg,
             type: 'success'
           })
-          this._getUnitList(this.search)
+          this._getDepartmentList(this.search)
         } else {
           this.cancelUserSet()
           this.$message({
@@ -329,45 +331,33 @@ export default {
         }
       })
     },
-    _getPluginTree () {
-      if (!this.plugins.length) {
-        getUnitPluginTree('getUnitPluginTree').then((res) => {
-          if (res.errcode === ERR_CODE) {
-            this.plugins = res.list
-            console.log(res)
-          }
-        }).catch((err) => {
-          console.log(err)
-        })
-      }
-    },
-    _getUnitItem (unitId) {
+    _getDepartmentItem (unitId) {
       const getInfo = {
         unitId,
         url: 'getUnitById'
       }
-      getUnitItem(getInfo).then((res) => {
+      getDepartmentItem(getInfo).then((res) => {
         if (res.errcode === ERR_CODE) {
-          const unit = res.list[0].unitInfo[0]
-          this.unitForm.name = unit.mc
-          this.unitForm.code = unit.dm
-          this.unitForm.contacts = unit.lxr
-          this.unitForm.tel = unit.dh
-          this.unitForm.email = unit.yx
-          this.unitForm.address = unit.dz
-          this.unitForm.order = unit.xh
-          this.unitForm.state = unit.zt
-          this.unitForm.unitId = unit.dwid
+          const department = res.list[0].unitInfo[0]
+          this.departmentForm.name = department.mc
+          this.departmentForm.code = department.dm
+          this.departmentForm.contacts = department.lxr
+          this.departmentForm.tel = department.dh
+          this.departmentForm.email = department.yx
+          this.departmentForm.address = department.dz
+          this.departmentForm.order = department.xh
+          this.departmentForm.state = department.zt
+          this.departmentForm.unitId = department.dwid
           const pluginChecked = res.list[0].gnInUnitInfo[0]
           if (pluginChecked) {
-            this.$refs.pluginTree.setCheckedKeys(pluginChecked.split(','))
+            this.$refs.departmentTree.setCheckedKeys(pluginChecked.split(','))
           }
         }
       }).catch((err) => {
         console.log(err)
       })
     },
-    _getUnitList (params) {
+    _getDepartmentList (params) {
       console.log(params)
       const getInfo = {
         mc: params.userName,
@@ -375,12 +365,12 @@ export default {
         zt: params.state,
         pageSize: this.pageSize,
         pageNo: this.currentPage,
-        url: 'getUnitInfo'
+        url: 'getDepartmentInfo'
       }
-      getUnitList(getInfo).then((res) => {
+      getDepartmentList(getInfo).then((res) => {
         if (res.errcode === ERR_CODE) {
           console.log(res)
-          this.unitList = res.rows
+          this.departmentList = res.rows
           this.total = res.totalCount
         }
       })
@@ -391,7 +381,7 @@ export default {
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/mixin"
-  .unit
+  .department
     padding: 0 35px
     margin-top: 133px
     .search

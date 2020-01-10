@@ -118,8 +118,14 @@ export default {
       this.currentPage = val
       this._getLogList(this.search)
     },
+    _dateAdd0 (time) {
+      if (time < 10) {
+        time = `0${time}`
+      }
+      return time
+    },
     _changeData (date) {
-      return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+      return date.getFullYear() + '-' + this._dateAdd0(date.getMonth() + 1) + '-' + this._dateAdd0(date.getDate())
     },
     _getLogList (params) {
       if (this.search.date) {
@@ -138,6 +144,7 @@ export default {
       }
       const getInfo = {
         lx: params.type,
+        yh: params.userName,
         ksrq: params.dateStart,
         jsrq: params.dateEnd,
         pageSize: this.pageSize,
