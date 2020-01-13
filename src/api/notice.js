@@ -1,3 +1,5 @@
+import axios from 'axios'
+// import qs from 'qs'
 import Http from 'common/js/request'
 
 export function getNoticeInfo (unitInfo) {
@@ -54,4 +56,27 @@ export function getNoticeItem (getInfo) {
     tzggid: getInfo.noticeId
   }
   return Http.postRequest(getInfo.url, data)
+}
+
+// export function uploadImg (info) {
+//   const config = {
+//     url: 'http://192.168.1.81/gateway/system/system/file/upImage',
+//     method: 'post',
+//     headers: {
+//       'Content-Type': 'multipart/form-data;'
+//     },
+//     data: info,
+//     timeout: 20000
+//   }
+//   console.log(config)
+//   return axios(config)
+// }
+
+export function uploadImg (data) {
+  const url = 'http://192.168.1.81/gateway/system/system/file/upImage'
+  return axios.post(url, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
 }

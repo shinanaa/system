@@ -6,7 +6,7 @@ export function getDepartmentList (params) {
     dm: params.dm,
     zt: params.zt,
     pageSize: params.pageSize,
-    pageNo: params.pageCurrent
+    pageNo: params.pageNo
   }
   return Http.postRequest(params.url, data)
 }
@@ -42,13 +42,6 @@ export function addDepartmentItem (addParams) {
     sjbmid: addParams.heightDepartment
   }
   return Http.postRequest(addParams.url, data)
-}
-
-export function deleteDepartmentItem (deleteParams) {
-  const data = {
-    bmid: deleteParams.bmid
-  }
-  return Http.postRequest(deleteParams.url, data)
 }
 
 export function getDepartmentData (url) {

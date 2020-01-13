@@ -33,19 +33,13 @@ const i = {
   changeRole: { url: 'gateway/system/system/role/switchRole' },
   // 日志管理
   getLogInfo: { url: 'gateway/system/system/log/queryLogListPage' },
-  // 单位管理
-  getUnitInfo: { url: 'gateway/admin/admin/unit/queryAllCompanyWithPage' },
-  getUnitById: { url: 'gateway/admin/admin/unit/queryCompanyById' },
-  getUnitPluginTree: { url: 'gateway/system/system/plugin/moudlePluginTree' },
-  addUnitInfo: { url: 'gateway/admin/admin/unit/unitInsert' },
-  editUnitInfo: { url: 'gateway/admin/admin/unit/unitUpdate' },
-  deleteUnitInfo: { url: 'gateway/admin/admin/unit/deleteUnit' },
   // 通知公告
-  getNoticeInfo: { url: 'gateway/admin/admin/notice/queryNoticeListPage' },
-  getNoticeById: { url: 'gateway/admin/admin/notice/queryNoticeById' },
-  addNoticeInfo: { url: 'gateway/admin/admin/notice/saveNoticeInfo' },
-  editNoticeInfo: { url: 'gateway/admin/admin/notice/updateNotice' },
-  deleteNoticeInfo: { url: 'gateway/admin/admin/notice/deleteNoticeById' },
+  getNoticeInfo: { url: 'gateway/system/system/notice/queryNoticeListPage' },
+  getNoticeById: { url: 'gateway/system/system/notice/queryNoticeById' },
+  addNoticeInfo: { url: 'gateway/system/system/notice/saveNoticeInfo' },
+  editNoticeInfo: { url: 'gateway/system/system/notice/updateNotice' },
+  deleteNoticeInfo: { url: 'gateway/system/system/notice/deleteNoticeById' },
+  uploadImage: { url: 'gateway/system/system/file/upImage' },
   // 部门管理
   getDepartmentTree: { url: 'gateway/system/system/department/queryDepartmentTree' },
   getDepartmentPersonTree: { url: 'gateway/system/system/department/queryDepartmentPersonTree' },

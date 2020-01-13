@@ -77,7 +77,7 @@
               </div>
             </div>
             <div class="card-btn">
-              <el-button size="mini" type="success" @click="editdepartment(item)">修改</el-button>
+              <el-button size="mini" type="success" @click="editDepartment(item)">修改</el-button>
               <el-button size="mini" type="danger" @click="deleteDepartment(item)">删除</el-button>
             </div>
           </div>
@@ -94,11 +94,11 @@
       <div class="dialog">
         <el-dialog :title="dialogTitle" :visible.sync="showDepartmentDialog">
           <el-form :model="departmentForm" ref="departmentForm" :rules="departmentRules">
-            <el-form-item label="名称" :label-width="formLabelWidth" prop="name">
-              <el-input type="text" v-model="departmentForm.name"></el-input>
+            <el-form-item label="名称" :label-width="formLabelWidth" prop="mc">
+              <el-input type="text" v-model="departmentForm.mc"></el-input>
             </el-form-item>
-            <el-form-item label="代码" :label-width="formLabelWidth" prop="code">
-              <el-input type="text" v-model="departmentForm.code"></el-input>
+            <el-form-item label="代码" :label-width="formLabelWidth" prop="dm">
+              <el-input type="text" v-model="departmentForm.dm"></el-input>
             </el-form-item>
             <el-row>
               <el-col :span="12">
@@ -114,7 +114,7 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item label="级别" :label-width="formLabelWidth" prop="tel">
-                  <el-select v-model="departmentForm.level" placeholder="请选择">
+                  <el-select v-model="departmentForm.jb" placeholder="请选择">
                     <el-option v-for="item in level" :key="item.value" :label="item.label" :value="item.value"></el-option>
                   </el-select>
                 </el-form-item>
@@ -123,12 +123,12 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="序号" :label-width="formLabelWidth" prop="order">
-                  <el-input type="text" v-model="departmentForm.order"></el-input>
+                  <el-input type="text" v-model="departmentForm.xh"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="状态" :label-width="formLabelWidth" prop="state">
-                  <el-select v-model="departmentForm.state" placeholder="请选择">
+                <el-form-item label="状态" :label-width="formLabelWidth" prop="zt">
+                  <el-select v-model="departmentForm.zt" placeholder="请选择">
                     <el-option v-for="item in stateDialog" :key="item.value" :label="item.label" :value="item.value"></el-option>
                   </el-select>
                 </el-form-item>
@@ -145,7 +145,7 @@
 </template>
 
 <script>
-import {getDepartmentList, addDepartmentItem, editDepartmentItem, getDepartmentItem, deleteDepartmentItem} from '@/api/department'
+import {getDepartmentList, addDepartmentItem, editDepartmentItem, getDepartmentItem} from '@/api/department'
 import {getDepartmentTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 export default {
@@ -172,11 +172,11 @@ export default {
       isAdd: true,
       showDepartmentDialog: false,
       departmentForm: {
-        name: '',
-        code: '',
-        level: '',
-        order: '',
-        state: ''
+        mc: '',
+        dm: '',
+        jb: '',
+        xh: '',
+        zt: ''
       },
       level: [
         {value: '1', label: '一级'},
@@ -220,16 +220,17 @@ export default {
   methods: {
     pageChange (val) {
       this.currentPage = val
-      this._getDepartmentList(this.pageSize, val)
+      this._getDepartmentList(this.search)
     },
-    editDepartment (item) {
+    async editDepartment (item) {
       this.isAdd = false
       this.showDepartmentDialog = true
-      this._getDepartmentItem(item.dwid)
+      this.departments = await getDepartmentTree()
+      this._getDepartmentItem(item.bmid)
     },
     deleteDepartment (item) {
       console.log(item)
-      this._deleteDepartmentInfo(item)
+      this._deleteDepartmentInfo(item.bmid)
     },
     async addDepartment () {
       this.departments = await getDepartmentTree()
@@ -259,12 +260,12 @@ export default {
     searchDepartment () {
       this._getDepartmentList(this.search)
     },
-    _deleteDepartmentInfo (params) {
+    _deleteDepartmentInfo (bmid) {
       const deleteParams = {
-        departmentId: params.bmid,
-        url: 'deleteUnitInfo'
+        bmid,
+        url: 'deleteDepartmentInfo'
       }
-      deleteDepartmentItem(deleteParams).then((res) => {
+      getDepartmentItem(deleteParams).then((res) => {
         console.log(res)
         if (res.errcode === ERR_CODE) {
           this.$message({
@@ -309,10 +310,8 @@ export default {
     },
     _editDepartmentInfo (params) {
       const editParams = params
-      editParams.url = 'editUnitInfo'
-      console.log(editParams)
+      editParams.url = 'editDepartmentInfo'
       editDepartmentItem(editParams).then((res) => {
-        console.log(res)
         if (res.errcode === ERR_CODE) {
           this.cancelUserSet()
           this.$message({
@@ -331,27 +330,18 @@ export default {
         }
       })
     },
-    _getDepartmentItem (unitId) {
+    _getDepartmentItem (bmid) {
       const getInfo = {
-        unitId,
-        url: 'getUnitById'
+        bmid,
+        url: 'getDepartmentById'
       }
       getDepartmentItem(getInfo).then((res) => {
+        console.log(res)
         if (res.errcode === ERR_CODE) {
-          const department = res.list[0].unitInfo[0]
-          this.departmentForm.name = department.mc
-          this.departmentForm.code = department.dm
-          this.departmentForm.contacts = department.lxr
-          this.departmentForm.tel = department.dh
-          this.departmentForm.email = department.yx
-          this.departmentForm.address = department.dz
-          this.departmentForm.order = department.xh
-          this.departmentForm.state = department.zt
-          this.departmentForm.unitId = department.dwid
-          const pluginChecked = res.list[0].gnInUnitInfo[0]
-          if (pluginChecked) {
-            this.$refs.departmentTree.setCheckedKeys(pluginChecked.split(','))
-          }
+          console.log(res)
+          this.departmentForm = res.list[0]
+          this.$refs.departmentTree.setCurrentKey(this.departmentForm.sjbmid)
+          console.log(this.departmentForm)
         }
       }).catch((err) => {
         console.log(err)

@@ -114,20 +114,37 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-form-item label="标题" :label-width="formLabelWidth" prop="mm">
+            <el-form-item label="标题" :label-width="formLabelWidth" prop="title">
               <el-input type="text" v-model="noticeForm.title"></el-input>
             </el-form-item>
             <el-form-item label="来源" :label-width="formLabelWidth" prop="XH">
               <el-input type="text" v-model="noticeForm.XH"></el-input>
             </el-form-item>
             <el-form-item label="图片" :label-width="formLabelWidth" prop="zt">
+              <!-----------------http-request----------------->
               <el-upload
                 class="img-uploader"
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :show-file-list="false">
+                action="#"
+                :http-request="imgUpload"
+                ref="imgUpload"
+                :show-file-list="false"
+                :on-success="imgDisplay">
                 <img v-if="noticeForm.imageUrl" :src="noticeForm.imageUrl" class="img">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </el-upload>
+              <!-----------------action----------------->
+              <!--<el-upload-->
+                <!--class="img-uploader"-->
+                <!--action="http://192.168.1.81/gateway/system/system/file/upImage"-->
+                <!--ref="imgUpload"-->
+                <!--name="upfile"-->
+                <!--:show-file-list="false"-->
+                <!--:data="imgParams"-->
+                <!--:on-success="imgDisplay"-->
+                <!--:on-error="imgError">-->
+                <!--<img v-if="noticeForm.imageUrl" :src="noticeForm.imageUrl" class="img">-->
+                <!--<i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
+              <!--</el-upload>-->
             </el-form-item>
             <el-form-item label="附件" :label-width="formLabelWidth" prop="fjwj">
               <el-input type="fjwj" v-model="noticeForm.fjwj"></el-input>
@@ -146,7 +163,8 @@
 </template>
 
 <script>
-import {getNoticeInfo} from '@/api/notice'
+import {getToken} from 'common/js/cache'
+import {getNoticeInfo, uploadImg} from '@/api/notice'
 import {ERR_CODE} from 'common/js/config'
 // import Tinymce from '@/components/Tinymce'
 export default {
@@ -199,6 +217,10 @@ export default {
           { required: true, message: '密码不能为空', trigger: 'blur' }
         ]
       },
+      imgParams: {
+        fileType: 'noticeFile',
+        authorization: getToken()
+      },
       formLabelWidth: '60px'
     }
   },
@@ -209,7 +231,7 @@ export default {
       return stateDialog
     },
     dialogTitle () {
-      return this.isAdd ? '用户增加' : '用户修改'
+      return this.isAdd ? '通知公告增加' : '通知公告修改'
     }
   },
   created () {
@@ -231,8 +253,28 @@ export default {
     submitNoticeSet () {},
     deleteNotice () {},
     searchNotice () {
-      console.log(this.search)
       this._getNoticeList(this.search)
+    },
+    imgUpload (content) {
+      let ImgData = new FormData()
+      ImgData.append('upfile', content.file)
+      ImgData.append('fileType', 'noticeFile')
+      ImgData.append('authorization', getToken())
+      const info = ImgData.values()
+      for (var item of info) {
+        console.log(item)
+      }
+      console.log(ImgData)
+      uploadImg(ImgData).then((res) => {
+        console.log(res)
+      })
+    },
+    imgDisplay (res, file) {
+      console.log(11111)
+      this.imageUrl = URL.createObjectURL(file.raw)
+    },
+    imgError (err) {
+      console.log(err)
     },
     _getNoticeList (parmas) {
       const getInfo = {
