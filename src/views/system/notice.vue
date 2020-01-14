@@ -97,17 +97,17 @@
       </div>
       <div class="dialog">
         <el-dialog :title="dialogTitle" :visible.sync="showNoticeDialog">
-          <el-form :model="noticeForm" ref="UsersForm" :rules="userRules">
+          <el-form :model="noticeForm" ref="noticeForm" :rules="userRules">
             <el-row>
               <el-col :span="12">
-                <el-form-item label="类型" :label-width="formLabelWidth" prop="yhmc">
+                <el-form-item label="类型" :label-width="formLabelWidth" prop="type">
                   <el-select v-model="noticeForm.type" placeholder="请选择">
                     <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value"></el-option>
                   </el-select>
               </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="状态" :label-width="formLabelWidth" prop="dm">
+                <el-form-item label="状态" :label-width="formLabelWidth" prop="state">
                   <el-select v-model="noticeForm.state" placeholder="请选择">
                     <el-option v-for="item in stateDialog" :key="item.value" :label="item.label" :value="item.value"></el-option>
                   </el-select>
@@ -117,18 +117,25 @@
             <el-form-item label="标题" :label-width="formLabelWidth" prop="title">
               <el-input type="text" v-model="noticeForm.title"></el-input>
             </el-form-item>
-            <el-form-item label="来源" :label-width="formLabelWidth" prop="XH">
-              <el-input type="text" v-model="noticeForm.XH"></el-input>
-            </el-form-item>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="范围" :label-width="formLabelWidth">
+                  <el-tree :data="userIds" :props="userTree" show-checkbox ref="userTree" node-key="value"></el-tree>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="来源" :label-width="formLabelWidth" prop="ly">
+                  <el-input type="text" v-model="noticeForm.ly"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
             <el-form-item label="图片" :label-width="formLabelWidth" prop="zt">
               <!-----------------http-request----------------->
               <el-upload
                 class="img-uploader"
                 action="#"
                 :http-request="imgUpload"
-                ref="imgUpload"
-                :show-file-list="false"
-                :on-success="imgDisplay">
+                :show-file-list="false">
                 <img v-if="noticeForm.imageUrl" :src="noticeForm.imageUrl" class="img">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </el-upload>
@@ -147,10 +154,17 @@
               <!--</el-upload>-->
             </el-form-item>
             <el-form-item label="附件" :label-width="formLabelWidth" prop="fjwj">
-              <el-input type="fjwj" v-model="noticeForm.fjwj"></el-input>
+              <el-upload
+                class="annexUpload"
+                action="#"
+                :http-request="annexUpload"
+                multiple
+                :file-list="noticeForm.fjwj">
+                <el-button size="small" type="primary">点击上传</el-button>
+              </el-upload>
             </el-form-item>
             <el-form-item label="内容" :label-width="formLabelWidth" prop="XH">
-              <!--<tinymce :height="300" v-model="noticeForm.content" :id="tinymceId"></tinymce>-->
+              <tinymce :height="300" v-model="noticeForm.content" :id="tinymceId"></tinymce>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -164,12 +178,13 @@
 
 <script>
 import {getToken} from 'common/js/cache'
-import {getNoticeInfo, uploadImg} from '@/api/notice'
+import {getNoticeInfo, uploadImg, addNoticeItem, getNoticeItem} from '@/api/notice'
+import {getDepartmentPersonTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
-// import Tinymce from '@/components/Tinymce'
+import Tinymce from '@/components/Tinymce'
 export default {
   name: 'notice',
-  // components: {Tinymce},
+  components: {Tinymce},
   data () {
     return {
       listType: true,
@@ -196,15 +211,16 @@ export default {
       isAdd: true,
       showNoticeDialog: false,
       tinymceId: '',
+      isImgUpload: true,
+      userIds: [],
       noticeForm: {
         type: '',
         state: '',
         title: '',
         imageUrl: '',
-        XH: '',
-        zt: '',
-        yhid: '',
-        yhjsid: []
+        fjwj: [],
+        ly: '',
+        userids: []
       },
       userRules: {
         yhmc: [
@@ -217,7 +233,11 @@ export default {
           { required: true, message: '密码不能为空', trigger: 'blur' }
         ]
       },
-      imgParams: {
+      userTree: {
+        label: 'label',
+        children: 'children'
+      },
+      imgParams: { // action
         fileType: 'noticeFile',
         authorization: getToken()
       },
@@ -244,37 +264,157 @@ export default {
       this._getUserList(this.pageSize, val)
     },
     seeNotice () {},
-    addNotice () {
+    async addNotice () {
+      this.userIds = await getDepartmentPersonTree()
       this.showNoticeDialog = true
       this.isAdd = true
     },
-    editNotice () {},
-    cancelNoticeSet () {},
-    submitNoticeSet () {},
-    deleteNotice () {},
+    editNotice (item) {
+      this._getNoticeItem(item.tzggid)
+      this.showNoticeDialog = true
+      this.isAdd = false
+    },
+    cancelNoticeSet () {
+      this.showNoticeDialog = false
+    },
+    submitNoticeSet () {
+      this.$refs.noticeForm.validate(valid => {
+        if (valid) {
+          const userArr = this.$refs.userTree.getCheckedNodes()
+          this.noticeForm.userids = []
+          userArr.filter((item) => {
+            if (item.isPerson) {
+              this.noticeForm.userids.push(item.value)
+            }
+          })
+          if (this.isAdd) {
+            this._addNoticeInfo(this.noticeForm)
+          } else {
+            this._editModuleInfo(this.noticeForm)
+          }
+        } else {
+          return false
+        }
+      })
+      console.log(this.noticeForm)
+    },
+    deleteNotice (item) {
+      this._deleteNoticeItem(item.tzggid)
+    },
     searchNotice () {
       this._getNoticeList(this.search)
     },
     imgUpload (content) {
+      this.isImgUpload = true
+      let url = 'http://192.168.1.81/gateway/system/system/file/upImage'
+      this._noticeUpload(content.file, url)
+    },
+    annexUpload (content) {
+      this.isImgUpload = false
+      let url = 'http://192.168.1.81/gateway/system/system/file/upFile'
+      this._noticeUpload(content.file, url)
+    },
+    _noticeUpload (file, url) {
       let ImgData = new FormData()
-      ImgData.append('upfile', content.file)
+      ImgData.append('upfile', file)
       ImgData.append('fileType', 'noticeFile')
       ImgData.append('authorization', getToken())
-      const info = ImgData.values()
-      for (var item of info) {
-        console.log(item)
-      }
       console.log(ImgData)
-      uploadImg(ImgData).then((res) => {
+      uploadImg(ImgData, url).then((res) => {
         console.log(res)
+        if (res.errcode === ERR_CODE) {
+          if (this.isImgUpload) {
+            this.noticeForm.imageUrl = res.dz
+          } else {
+            let annex = {
+              name: res.ysmc,
+              url: res.dz
+            }
+            this.noticeForm.fjwj.push(annex)
+          }
+        }
       })
     },
     imgDisplay (res, file) {
       console.log(11111)
-      this.imageUrl = URL.createObjectURL(file.raw)
+      this.noticeForm.imageUrl = URL.createObjectURL(file.raw)
     },
     imgError (err) {
       console.log(err)
+    },
+    _addNoticeInfo (params) {
+      console.log(params)
+      const addParams = {
+        lx: params.type,
+        bt: params.title,
+        ly: params.ly,
+        nr: params.content,
+        tpwj: params.imageUrl,
+        zt: params.state,
+        url: 'addNoticeInfo'
+      }
+      let user = params.userids
+      addParams.users = user.toString()
+      let fjArr = params.fjwj
+      let fjUrlArr = []
+      fjArr.map((item) => {
+        console.log(item)
+        fjUrlArr.push(item.url)
+      })
+      addParams.fjwj = fjUrlArr.join(',')
+      console.log(addParams)
+      addNoticeItem(addParams).then((res) => {
+        if (res.errcode === ERR_CODE) {
+          this.cancelNoticeSet()
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'success'
+          })
+          this._getNoticeList(this.search)
+        } else {
+          this.cancelNoticeSet()
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'error'
+          })
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+    },
+    _deleteNoticeItem (noticeId) {
+      const deleteParams = {
+        noticeId,
+        url: 'deleteNoticeInfo'
+      }
+      getNoticeItem(deleteParams).then((res) => {
+        if (res.errcode === ERR_CODE) {
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'success'
+          })
+          this._getNoticeList(this.search)
+        } else {
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'error'
+          })
+        }
+        console.log(res)
+      })
+    },
+    _getNoticeItem (noticeId) {
+      const params = {
+        noticeId,
+        url: 'getNoticeById'
+      }
+      getNoticeItem(params).then((res) => {
+        console.log(res)
+      })
     },
     _getNoticeList (parmas) {
       const getInfo = {
@@ -369,21 +509,22 @@ export default {
       .el-pagination
         padding: 15px 20px
     .dialog
-      /deep/  .el-upload
-        border: 1px dashed #d9d9d9
-        border-radius: 6px
-        cursor: pointer
-        position: relative
-        overflow: hidden
-        &:hover
-          border-color: #409EFF;
+      .img-uploader
+        /deep/  .el-upload
+          border: 1px dashed #d9d9d9
+          border-radius: 6px
+          cursor: pointer
+          position: relative
+          overflow: hidden
+          &:hover
+            border-color: #409EFF;
       .avatar-uploader-icon
         width: 178px
         height: 178px
         line-height: 178px
         display: block
       .img
-        width: 178px
-        height: 178px
+        width: 175px
+        height: 175px
         display: block
 </style>

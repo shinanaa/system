@@ -123,8 +123,7 @@
 
 <script>
 import {getRoleList, addRoleItem, editRoleItem, getRoleItem} from '@/api/role'
-import {getUserTree} from '@/api/user'
-import {getPluginTree} from '@/api/plugin'
+import {getDepartmentPersonTree, getPluginTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 export default {
   name: 'role',
@@ -250,24 +249,10 @@ export default {
         }
       })
     },
-    _getTreeList () {
+    async _getTreeList () {
       // 去除掉若存在不获取的判断，防止数据更新后不获取
-      getUserTree('getDepartmentPersonTree').then((res) => {
-        console.log(res)
-        if (res.errcode === ERR_CODE) {
-          this.userIds = res.list
-        }
-      }).catch((err) => {
-        console.log(err)
-      })
-      getPluginTree('getPluginTree').then((res) => {
-        console.log(res)
-        if (res.errcode === ERR_CODE) {
-          this.plugins = res.list
-        }
-      }).catch((err) => {
-        console.log(err)
-      })
+      this.userIds = await getDepartmentPersonTree()
+      this.plugins = await getPluginTree()
     },
     _deleteRoleInfo (jsid) {
       const deleteParams = {

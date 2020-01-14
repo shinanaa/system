@@ -15,15 +15,14 @@ export function getNoticeInfo (unitInfo) {
 
 export function addNoticeItem (addParams) {
   const data = {
-    lx: addParams.type,
-    bt: addParams.title,
-    ly: addParams.source,
-    nr: addParams.content,
-    tpwj: addParams.images,
-    fjwj: addParams.appendix,
-    zt: addParams.state,
-    units: addParams.units,
-    yhid: addParams.userId
+    lx: addParams.lx,
+    bt: addParams.bt,
+    ly: addParams.ly,
+    nr: addParams.nr,
+    tpwj: addParams.tpwj,
+    fjwj: addParams.fjwj,
+    zt: addParams.zt,
+    users: addParams.users
   }
   return Http.postRequest(addParams.url, data)
 }
@@ -58,25 +57,24 @@ export function getNoticeItem (getInfo) {
   return Http.postRequest(getInfo.url, data)
 }
 
-// export function uploadImg (info) {
-//   const config = {
-//     url: 'http://192.168.1.81/gateway/system/system/file/upImage',
-//     method: 'post',
-//     headers: {
-//       'Content-Type': 'multipart/form-data;'
-//     },
-//     data: info,
-//     timeout: 20000
-//   }
-//   console.log(config)
-//   return axios(config)
-// }
-
-export function uploadImg (data) {
-  const url = 'http://192.168.1.81/gateway/system/system/file/upImage'
-  return axios.post(url, data, {
+export function uploadImg (info, url) {
+  const config = {
+    url,
+    method: 'post',
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
+      'Content-Type': 'multipart/form-data;'
+    },
+    data: info,
+    timeout: 20000
+  }
+  console.log(config)
+  return axios(config)
 }
+
+// export function uploadImg (data, url) {
+//   return axios.post(url, data, {
+//     headers: {
+//       'Content-Type': 'multipart/form-data'
+//     }
+//   })
+// }
