@@ -8,7 +8,7 @@ export function getNoticeInfo (unitInfo) {
     bt: unitInfo.title,
     zt: unitInfo.state,
     pageSize: unitInfo.pageSize,
-    pageNo: unitInfo.pageNo
+    pageNo: unitInfo.pageCurrent
   }
   return Http.postRequest(unitInfo.url, data)
 }
@@ -29,16 +29,15 @@ export function addNoticeItem (addParams) {
 
 export function editNoticeItem (editParams) {
   const data = {
-    lx: editParams.type,
-    bt: editParams.title,
-    ly: editParams.source,
-    nr: editParams.content,
-    tpwj: editParams.images,
-    fjwj: editParams.appendix,
-    zt: editParams.state,
-    units: editParams.units,
-    yhid: editParams.userId,
-    tzggid: editParams.noticeId
+    lx: editParams.lx,
+    bt: editParams.bt,
+    ly: editParams.ly,
+    nr: editParams.nr,
+    tpwj: editParams.tpwj,
+    fjwj: editParams.fjwj,
+    zt: editParams.zt,
+    users: editParams.users,
+    tzggid: editParams.tzggid
   }
   return Http.postRequest(editParams.url, data)
 }

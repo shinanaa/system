@@ -21,6 +21,21 @@ export function getRoleList (list) {
   })
 }
 
+// 获取用户管理条件查询部门树
+export function getUserDepartmentTree () {
+  const p = new Promise(function (resolve, reject) {
+    getUserTree('getUserDepartmentTree').then((res) => {
+      if (res.errcode === ERR_CODE) {
+        console.log(res.list)
+        resolve(res.list)
+      }
+    }).catch((err) => {
+      reject(err)
+    })
+  })
+  return p
+}
+
 // 获取部门树
 export function getDepartmentTree () {
   const p = new Promise(function (resolve, reject) {

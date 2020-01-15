@@ -1,5 +1,5 @@
 <template>
-    <div class="plugin">
+    <div class="plugin common">
       <div class="search">
         <div class="search-item">
           <span>模块：</span>
@@ -385,69 +385,5 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-  @import "~common/stylus/mixin"
-  .plugin
-    padding: 0 35px
-    margin-top: 133px
-    .search
-      .search-item
-        display: inline-block
-        margin-right: 15px
-        padding: 20px 0
-        span
-          color: #606266
-        .el-input
-          width: auto
-  .table-wrapper
-    background: #FFFFFF
-    border-radius: 8px
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1)
-    .table-btn
-      padding: 15px 20px
-      clearfix()
-      .btn-handle
-        float: left
-      .btn-change
-        float: right
-        margin-top: 5px
-        font-size: 28px
-        color: #606266
-        .active
-          color: #409eff
-    .table-main
-    .card-mian
-      clearfix()
-      .cardItem
-        float: left
-        padding: 15px 2.5%
-        margin-left: 4%
-        margin-bottom: 20px
-        width: 20%
-        box-sizing: border-box
-        background-color: #f2f6fc
-        border-radius: 15px
-        .userName
-          line-height: 38px
-          font-size: 17px
-          text-align: center
-          color: #606266
-          border-bottom: 1px solid #909399
-        .info-item
-          margin-top: 15px
-          font-size: 15px
-          .info-key
-            display: inline-block
-            margin-right: 10px
-            width: 70px
-            height: 30px
-            line-height: 30px
-            text-align: center
-            background: #FFFFFF
-            box-shadow: 0px 0px 5px 0px rgba(76, 112, 161, 0.5)
-            border-radius: 3px
-      .card-btn
-        heihgt: 70px
-        line-height: 70px
-    .el-pagination
-      padding: 15px 20px
+  @import "~common/stylus/common"
 </style>

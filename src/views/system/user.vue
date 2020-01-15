@@ -1,11 +1,20 @@
 <template>
-    <div class="user">
+    <div class="user common">
       <div class="search">
         <div class="search-item">
           <span>部门：</span>
-          <el-cascader
-            v-model="search.department"
-            :options="departments"></el-cascader>
+          <!--<el-cascader-->
+            <!--v-model="search.department"-->
+            <!--:options="departments"></el-cascader>-->
+          <div style="display: inline-block;padding: 5px 10px;background: #ffffff;">
+            <el-tree
+              :data="departments"
+              :props="departmentTree"
+              :expand-on-click-node="false"
+              ref="departmentTree"
+              highlight-current
+              node-key="value"></el-tree>
+          </div>
         </div>
         <div class="search-item">
           <span>角色：</span>
@@ -149,7 +158,7 @@
 
 <script>
 import {getUserList, editUserItem, addUserItem, deleteUserItem, getUserItem} from '@/api/user'
-import {getRoleList, getDepartmentTree} from '@/api/treeAndList'
+import {getRoleList, getUserDepartmentTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 export default {
   name: 'user',
@@ -186,6 +195,10 @@ export default {
         yhid: '',
         yhjsid: []
       },
+      departmentTree: {
+        label: 'label',
+        children: 'children'
+      },
       userRules: {
         yhmc: [
           { required: true, message: '名称不能为空', trigger: 'blur' }
@@ -219,7 +232,7 @@ export default {
     // 获取搜索中角色列表
     getRoleList(this.roles)
     // 获取搜索中的部门列表
-    this.departments = await getDepartmentTree()
+    this.departments = await getUserDepartmentTree()
   },
   methods: {
     searchUser () {
@@ -394,71 +407,5 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-  @import "~common/stylus/mixin"
-.user
-  padding: 0 35px
-  margin-top: 133px
-  .search
-    .search-item
-      display: inline-block
-      margin-right: 15px
-      padding: 20px 0
-      span
-        color: #606266
-      .el-input
-        width: auto
-  .table-wrapper
-    background: #FFFFFF
-    border-radius: 8px
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1)
-    .table-btn
-      padding: 15px 20px
-      clearfix()
-      .btn-handle
-        float: left
-      .btn-change
-        float: right
-        margin-top: 5px
-        font-size: 28px
-        color: #606266
-        .active
-          color: #409eff
-    .table-main
-    .card-mian
-      clearfix()
-      .cardItem
-        float: left
-        padding: 15px 2.5%
-        margin-left: 4%
-        margin-bottom: 20px
-        width: 20%
-        box-sizing: border-box
-        background-color: #f2f6fc
-        border-radius: 15px
-        .userName
-          line-height: 38px
-          font-size: 17px
-          text-align: center
-          color: #606266
-          border-bottom: 1px solid #909399
-        .info-item
-          margin-top: 15px
-          font-size: 15px
-          .info-key
-            display: inline-block
-            margin-right: 10px
-            width: 70px
-            height: 30px
-            line-height: 30px
-            text-align: center
-            background: #FFFFFF
-            box-shadow: 0px 0px 5px 0px rgba(76, 112, 161, 0.5)
-            border-radius: 3px
-          .info-value
-            textOverflow(calc(100% - 85px))
-      .card-btn
-        heihgt: 70px
-        line-height: 70px
-    .el-pagination
-        padding: 15px 20px
+  @import "~common/stylus/common"
 </style>

@@ -59,7 +59,7 @@
         </div>
         <div v-if="!listType" class="card-mian">
           <div class="cardItem" v-for="(item, index) in noticeList" :key="index">
-            <div class="userName">{{item.bt}}</div>
+            <div class="userName">{{item.bt ? item.bt : '暂无标题'}}</div>
             <div class="infoWrapper">
               <div class="info-item">
                 <span class="info-key">类型</span>
@@ -129,7 +129,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-form-item label="图片" :label-width="formLabelWidth" prop="zt">
+            <el-form-item label="图片" :label-width="formLabelWidth" prop="imageUrl">
               <!-----------------http-request----------------->
               <el-upload
                 class="img-uploader"
@@ -163,8 +163,8 @@
                 <el-button size="small" type="primary">点击上传</el-button>
               </el-upload>
             </el-form-item>
-            <el-form-item label="内容" :label-width="formLabelWidth" prop="XH">
-              <tinymce :height="300" v-model="noticeForm.content" :id="tinymceId"></tinymce>
+            <el-form-item label="内容" :label-width="formLabelWidth" prop="nr">
+              <tinymce :height="300" v-model="noticeForm.nr" :id="tinymceId"></tinymce>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -178,7 +178,7 @@
 
 <script>
 import {getToken} from 'common/js/cache'
-import {getNoticeInfo, uploadImg, addNoticeItem, getNoticeItem} from '@/api/notice'
+import {getNoticeInfo, uploadImg, addNoticeItem, getNoticeItem, editNoticeItem} from '@/api/notice'
 import {getDepartmentPersonTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 import Tinymce from '@/components/Tinymce'
@@ -220,7 +220,8 @@ export default {
         imageUrl: '',
         fjwj: [],
         ly: '',
-        userids: []
+        userids: [],
+        nr: ''
       },
       userRules: {
         yhmc: [
@@ -261,7 +262,7 @@ export default {
   methods: {
     pageChange (val) {
       this.currentPage = val
-      this._getUserList(this.pageSize, val)
+      this._getNoticeList(this.search)
     },
     seeNotice () {},
     async addNotice () {
@@ -269,13 +270,17 @@ export default {
       this.showNoticeDialog = true
       this.isAdd = true
     },
-    editNotice (item) {
+    async editNotice (item) {
+      this.userIds = await getDepartmentPersonTree()
       this._getNoticeItem(item.tzggid)
       this.showNoticeDialog = true
       this.isAdd = false
     },
     cancelNoticeSet () {
       this.showNoticeDialog = false
+      this.$refs.noticeForm.resetFields()
+      this.$refs.userTree.setCheckedKeys([])
+      console.log(this.noticeForm)
     },
     submitNoticeSet () {
       this.$refs.noticeForm.validate(valid => {
@@ -290,13 +295,12 @@ export default {
           if (this.isAdd) {
             this._addNoticeInfo(this.noticeForm)
           } else {
-            this._editModuleInfo(this.noticeForm)
+            this._editNoticeInfo(this.noticeForm)
           }
         } else {
           return false
         }
       })
-      console.log(this.noticeForm)
     },
     deleteNotice (item) {
       this._deleteNoticeItem(item.tzggid)
@@ -328,7 +332,8 @@ export default {
           } else {
             let annex = {
               name: res.ysmc,
-              url: res.dz
+              url: res.dz,
+              id: res.wjid
             }
             this.noticeForm.fjwj.push(annex)
           }
@@ -348,7 +353,7 @@ export default {
         lx: params.type,
         bt: params.title,
         ly: params.ly,
-        nr: params.content,
+        nr: params.nr,
         tpwj: params.imageUrl,
         zt: params.state,
         url: 'addNoticeInfo'
@@ -358,8 +363,7 @@ export default {
       let fjArr = params.fjwj
       let fjUrlArr = []
       fjArr.map((item) => {
-        console.log(item)
-        fjUrlArr.push(item.url)
+        fjUrlArr.push(item.id)
       })
       addParams.fjwj = fjUrlArr.join(',')
       console.log(addParams)
@@ -382,6 +386,45 @@ export default {
         }
       }).catch((err) => {
         console.log(err)
+      })
+    },
+    _editNoticeInfo (params) {
+      const editParams = {
+        tzggid: params.tzggid,
+        lx: params.type,
+        bt: params.title,
+        ly: params.ly,
+        nr: params.nr,
+        tpwj: params.imageUrl,
+        zt: params.state,
+        url: 'editNoticeInfo'
+      }
+      console.log(editParams)
+      let user = params.userids
+      editParams.users = user.toString()
+      let fjArr = params.fjwj
+      let fjUrlArr = []
+      fjArr.map((item) => {
+        fjUrlArr.push(item.id)
+      })
+      editParams.fjwj = fjUrlArr.join(',')
+      editNoticeItem(editParams).then((res) => {
+        if (res.errcode === ERR_CODE) {
+          this.cancelNoticeSet()
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'success'
+          })
+          this._getNoticeList(this.search)
+        } else {
+          this.cancelNoticeSet()
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'error'
+          })
+        }
       })
     },
     _deleteNoticeItem (noticeId) {
@@ -414,6 +457,29 @@ export default {
       }
       getNoticeItem(params).then((res) => {
         console.log(res)
+        if (res.errcode === ERR_CODE) {
+          // debugger
+          let noticeItem = res.list[0]
+          this.noticeForm.tzggid = noticeItem.tzggid
+          this.noticeForm.type = noticeItem.lx
+          this.noticeForm.title = noticeItem.bt
+          this.noticeForm.ly = noticeItem.ly
+          this.noticeForm.nr = noticeItem.nr
+          this.noticeForm.imageUrl = noticeItem.tpwj
+          this.noticeForm.state = noticeItem.zt
+          console.log(this.noticeForm)
+          if (noticeItem.list_users) {
+            this.$refs.userTree.setCheckedKeys(noticeItem.list_users)
+          }
+          const fileArr = noticeItem.list_file_filePath
+          fileArr.map((item) => {
+            let file = {}
+            file.name = item.ysmc
+            file.url = item.dz
+            file.id = item.wjid
+            this.noticeForm.fjwj.push(file)
+          })
+        }
       })
     },
     _getNoticeList (parmas) {
