@@ -9,6 +9,7 @@ const i = {
   editUserInfo: { url: 'gateway/system/system/user/updateUser' },
   addUserInfo: { url: 'gateway/system/system/user/insertUser' },
   deleteUserInfo: { url: 'gateway/system/system/user/deleteUser' },
+  deleteUsers: { url: 'gateway/system/system/user/deleteUsers' },
   // 模块管理
   getModuleTree: { url: 'gateway/system/system/module/queryModuleList' },
   getModuleById: { url: 'gateway/system/system/module/queryModuleById' },

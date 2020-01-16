@@ -44,7 +44,7 @@
           <div class="btn-handle">
             <el-button type="primary" @click="addUser">新增</el-button>
             <el-button type="primary">导出</el-button>
-            <el-button type="primary">批量删除</el-button>
+            <el-button type="primary" @click="openDelDialog">批量删除</el-button>
           </div>
           <div class="btn-change">
             <i class="el-icon-s-fold" :class="{'active' : listType}" @click="listType = true"></i>
@@ -59,7 +59,7 @@
             <el-table-column prop="dm" label="代码"></el-table-column>
             <el-table-column prop="jsmc" label="角色"></el-table-column>
             <el-table-column prop="bmmc" label="部门"></el-table-column>
-            <el-table-column prop="XH" label="序号"></el-table-column>
+            <el-table-column prop="xh" label="序号"></el-table-column>
             <el-table-column prop="zt" label="状态">
               <template slot-scope="scope">
                 <span>{{scope.row.zt === 'Y' ? '使用' : '禁用'}}</span>
@@ -91,7 +91,7 @@
                 </div>
                 <div class="info-item">
                   <span class="info-key">序号</span>
-                  <span class="info-value">{{item.XH}}</span>
+                  <span class="info-value">{{item.xh}}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-key">状态</span>
@@ -123,10 +123,10 @@
               <el-input type="text" v-model="userForm.dm"></el-input>
             </el-form-item>
             <el-form-item label="密码" :label-width="formLabelWidth" prop="mm">
-              <el-input type="text" v-model="userForm.mm"></el-input>
+              <el-input type="password" v-model="userForm.mm"></el-input>
             </el-form-item>
-            <el-form-item label="角色" :label-width="formLabelWidth" prop="jsmc">
-              <el-select v-model="userForm.yhjsid" placeholder="请选择">
+            <el-form-item label="角色" :label-width="formLabelWidth" prop="yhjsid">
+              <el-select v-model="userForm.yhjsid" multiple placeholder="请选择">
                 <el-option
                   v-for="item in roles"
                   :key="item.value"
@@ -135,10 +135,10 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="部门" :label-width="formLabelWidth" prop="XH">
-              <el-tree :data="departments" :props="departmentsTree" show-checkbox ref="departmentsTree" node-key="value"></el-tree>
+            <el-form-item label="部门" :label-width="formLabelWidth">
+              <el-tree :data="selectDepartments" :props="departmentsTree" ref="departmentsTree" :expand-on-click-node="false" highlight-current node-key="value"></el-tree>
             </el-form-item>
-            <el-form-item label="序号" :label-width="formLabelWidth" prop="XH">
+            <el-form-item label="序号" :label-width="formLabelWidth" prop="xh">
               <el-input type="text" v-model="userForm.xh"></el-input>
             </el-form-item>
             <el-form-item label="状态" :label-width="formLabelWidth" prop="zt">
@@ -152,13 +152,20 @@
             <el-button type="primary" @click="submitUserSet">确 定</el-button>
           </div>
         </el-dialog>
+        <el-dialog title="用户批量删除" :visible.sync="showDelBulk">
+          <el-tree :data="userIds" :props="userTree" show-checkbox ref="userTree" node-key="value"></el-tree>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="cancelDelUsers">取 消</el-button>
+            <el-button type="primary" @click="submitDelUser">确 定</el-button>
+          </div>
+        </el-dialog>
       </div>
     </div>
 </template>
 
 <script>
-import {getUserList, editUserItem, addUserItem, deleteUserItem, getUserItem} from '@/api/user'
-import {getRoleList, getUserDepartmentTree} from '@/api/treeAndList'
+import {getUserList, editUserItem, addUserItem, getUserItem} from '@/api/user'
+import {getRoleList, getUserDepartmentTree, getDepartmentTree, getDepartmentPersonTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 export default {
   name: 'user',
@@ -166,7 +173,6 @@ export default {
     return {
       listType: true,
       search: {
-        department: [],
         role: '',
         userName: '',
         state: ''
@@ -195,6 +201,7 @@ export default {
         yhid: '',
         yhjsid: []
       },
+      selectDepartments: [],
       departmentTree: {
         label: 'label',
         children: 'children'
@@ -214,7 +221,14 @@ export default {
         label: 'label',
         children: 'children'
       },
-      formLabelWidth: '60px'
+      formLabelWidth: '60px',
+      // 批量删除
+      showDelBulk: false,
+      userIds: [],
+      userTree: {
+        label: 'label',
+        children: 'children'
+      }
     }
   },
   computed: {
@@ -235,6 +249,15 @@ export default {
     this.departments = await getUserDepartmentTree()
   },
   methods: {
+    async openDelDialog () {
+      this.userIds = await getDepartmentPersonTree()
+      this.showDelBulk = true
+    },
+    cancelDelUsers () {
+      this.showDelBulk = true
+      // 清除树的内容
+    },
+    submitDelUser () {},
     searchUser () {
       this._getUserList(this.search)
     },
@@ -242,11 +265,13 @@ export default {
       console.log(rowData)
       this._deleteUserInfo(rowData)
     },
-    addUser () {
+    async addUser () {
+      this.selectDepartments = await getDepartmentTree()
       this.showUserDialog = true
       this.isAdd = true
     },
-    editUser (rowData) {
+    async editUser (rowData) {
+      this.selectDepartments = await getDepartmentTree()
       this.showUserDialog = true
       this.isAdd = false
       this._getUserItem(rowData.yhid)
@@ -262,6 +287,8 @@ export default {
     submitUserSet () {
       this.$refs.UsersForm.validate(valid => {
         if (valid) {
+          this.userForm.bmid = this.$refs.departmentsTree.getCurrentKey()
+          console.log(this.userForm)
           if (this.isAdd) {
             this._addUserInfo(this.userForm)
           } else {
@@ -279,7 +306,7 @@ export default {
       }
       console.log(12)
       console.log(deleteParams)
-      deleteUserItem(deleteParams).then((res) => {
+      getUserItem(deleteParams).then((res) => {
         if (res.errcode === ERR_CODE) {
           this.$message({
             showClose: true,
@@ -298,17 +325,8 @@ export default {
       })
     },
     _addUserInfo (params) {
-      console.log(params)
-      const checkArr = this.$refs.departmentsTree.getCheckedNodes()
-      console.log(checkArr)
-      const addParams = {
-        dm: params.dm,
-        mm: params.mm,
-        mc: params.yhmc,
-        zt: params.zt,
-        yhjsid: params.yhjsid,
-        url: 'addUserInfo'
-      }
+      const addParams = params
+      addParams.url = 'addUserInfo'
       addUserItem(addParams).then((res) => {
         console.log(res)
         if (res.errcode === ERR_CODE) {
@@ -333,18 +351,8 @@ export default {
     },
     _editUserInfo (params) {
       console.log(params)
-      const editParams = {
-        dm: params.dm,
-        mm: params.mm,
-        mc: params.yhmc,
-        zt: params.zt,
-        yhid: params.yhid,
-        url: 'editUserInfo'
-      }
-      if (params.yhjsid) {
-        editParams.yhjsid = params.yhjsid.split(',')
-      }
-      console.log(editParams)
+      const editParams = params
+      editParams.url = 'editUserInfo'
       editUserItem(editParams).then((res) => {
         console.log(res)
         if (res.errcode === ERR_CODE) {
@@ -365,18 +373,20 @@ export default {
         }
       })
     },
-    _getUserItem (userId) {
+    _getUserItem (yhid) {
+      console.log('data')
       const getInfo = {
-        userId,
+        yhid,
         url: 'getUserById'
       }
       getUserItem(getInfo).then((res) => {
         console.log(res)
         if (res.errcode === ERR_CODE) {
           // 将返回的值赋值给表单
-          // if (this.userForm.mm) {
-          //   this.userForm.mm = '******'
-          // }
+          this.userForm = res.list[0]
+          if (this.$refs.departmentsTree) {
+            this.$refs.departmentsTree.setCurrentKey(this.userForm.bmid)
+          }
         }
       }).catch((err) => {
         console.log(err)
@@ -391,7 +401,11 @@ export default {
         pageCurrent: this.currentPage,
         url: 'getUserInfo'
       }
-      console.log(getInfo)
+      if (this.$refs.departmentTree) {
+        console.log(123)
+        console.log(this.$refs.departmentTree.getCurrentKey())
+        getInfo.qid = this.$refs.departmentTree.getCurrentKey()
+      }
       getUserList(getInfo).then((res) => {
         if (res.errcode === ERR_CODE) {
           this.userList = res.rows

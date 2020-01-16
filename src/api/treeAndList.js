@@ -41,20 +41,6 @@ export function getDepartmentTree () {
   const p = new Promise(function (resolve, reject) {
     getDepartmentData('getDepartmentTree').then((res) => {
       if (res.errcode === ERR_CODE) {
-        let departmentsList = res.list
-        console.log(departmentsList)
-        departmentsList.map((arr) => {
-          if (arr.children.length) {
-            arr.children.map((item) => {
-              if (item.children.length) {
-              } else {
-                delete item.children
-              }
-            })
-          } else {
-            delete arr.children
-          }
-        })
         resolve(res.list)
       }
     }).catch((err) => {

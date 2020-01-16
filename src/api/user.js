@@ -2,10 +2,10 @@ import Http from 'common/js/request'
 
 export function getUserList (userInfo) {
   const data = {
-    dm: userInfo.dm,
     mc: userInfo.mc,
     zt: userInfo.zt,
     jsid: userInfo.jsid,
+    qid: userInfo.qid,
     pageSize: userInfo.pageSize,
     pageNo: userInfo.pageCurrent
   }
@@ -17,7 +17,9 @@ export function editUserItem (editParams) {
     dm: editParams.dm,
     mm: editParams.mm,
     mc: editParams.mc,
+    xh: editParams.xh,
     zt: editParams.zt,
+    bmid: editParams.bmid,
     yhjsid: editParams.yhjsid,
     yhid: editParams.yhid
   }
@@ -29,24 +31,26 @@ export function addUserItem (addParams) {
     dm: addParams.dm,
     mm: addParams.mm,
     mc: addParams.mc,
+    xh: addParams.xh,
     zt: addParams.zt,
+    bmid: addParams.bmid,
     yhjsid: addParams.yhjsid
   }
   return Http.postRequest(addParams.url, data)
 }
 
-export function deleteUserItem (deleteParams) {
-  const data = {
-    yhid: deleteParams.yhid
-  }
-  return Http.postRequest(deleteParams.url, data)
-}
-
 export function getUserItem (getInfo) {
   const data = {
-    yhid: getInfo.userId
+    yhid: getInfo.yhid
   }
   return Http.postRequest(getInfo.url, data)
+}
+
+export function deleteUsers (info) {
+  const data = {
+    userids: info.userids
+  }
+  return Http.postRequest(info.url, data)
 }
 
 export function getUserTree (url) {
