@@ -251,7 +251,7 @@ export default {
     },
     async _getTreeList () {
       // 去除掉若存在不获取的判断，防止数据更新后不获取
-      this.userIds = await getDepartmentPersonTree()
+      this.userIds = await getDepartmentPersonTree('getDepartmentPersonTree')
       this.plugins = await getPluginTree()
     },
     _deleteRoleInfo (jsid) {

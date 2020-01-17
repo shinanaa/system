@@ -164,7 +164,7 @@
 </template>
 
 <script>
-import {getUserList, editUserItem, addUserItem, getUserItem} from '@/api/user'
+import {getUserList, editUserItem, addUserItem, getUserItem, deleteUsers} from '@/api/user'
 import {getRoleList, getUserDepartmentTree, getDepartmentTree, getDepartmentPersonTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 export default {
@@ -244,20 +244,45 @@ export default {
   async created () {
     this._getUserList(this.search)
     // 获取搜索中角色列表
-    getRoleList(this.roles)
+    getRoleList(this.roles, 'Y')
     // 获取搜索中的部门列表
-    this.departments = await getUserDepartmentTree()
+    this.departments = await getUserDepartmentTree('Y')
   },
   methods: {
     async openDelDialog () {
-      this.userIds = await getDepartmentPersonTree()
+      this.userIds = await getDepartmentPersonTree('getUserDepartmentPersonTree')
       this.showDelBulk = true
     },
     cancelDelUsers () {
-      this.showDelBulk = true
+      this.showDelBulk = false
       // 清除树的内容
     },
-    submitDelUser () {},
+    submitDelUser () {
+      console.log(this.$refs.userTree.getCheckedNodes())
+      const checkArr = this.$refs.userTree.getCheckedNodes()
+      const delUsers = []
+      checkArr.filter((item) => {
+        if (item.isPerson) {
+          delUsers.push(item.value)
+        }
+      })
+      const delInfo = {
+        userids: delUsers,
+        url: 'deleteUsers'
+      }
+      deleteUsers(delInfo).then((res) => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          this.cancelDelUsers()
+          this.$message({
+            showClose: true,
+            message: res.errmsg,
+            type: 'success'
+          })
+          this._getUserList(this.search)
+        }
+      })
+    },
     searchUser () {
       this._getUserList(this.search)
     },

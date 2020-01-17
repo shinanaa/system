@@ -49,6 +49,9 @@ export function deleteRoleItem (deleteParams) {
   return Http.postRequest(deleteParams.url, data)
 }
 
-export function getRoleTree (url) {
-  return Http.postRequest(url)
+export function getRoleTree (url, zt) {
+  const data = {
+    zt
+  }
+  return Http.postRequest(url, data)
 }

@@ -4,6 +4,7 @@ const i = {
   changePwd: { url: 'gateway/system/system/user/updatePassword' },
   // 用户管理
   getUserDepartmentTree: { url: 'gateway/system/system/department/departmentTreeByQuery' }, // 用户条件查询使用
+  getUserDepartmentPersonTree: { url: 'gateway/system/system/department/queryDepartmentPersonTreeByUser' }, // 批量删除用户时展现的列表
   getUserById: { url: 'gateway/system/system/user/queryUserById' },
   getUserInfo: { url: 'gateway/system/system/user/queryAllUserWithPage' }, // 分页获取用户数据
   editUserInfo: { url: 'gateway/system/system/user/updateUser' },

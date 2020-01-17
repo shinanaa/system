@@ -172,6 +172,10 @@
             <el-button type="primary" @click="submitNoticeSet">确 定</el-button>
           </div>
         </el-dialog>
+        <el-dialog class="seeNotice" title="查看通知公告" :visible.sync="showNoticeDetail">
+          <h1>{{noticeDetail.title}}</h1>
+          <div class="noticeContent" v-html="noticeDetail.content"></div>
+        </el-dialog>
       </div>
     </div>
 </template>
@@ -242,7 +246,14 @@ export default {
         fileType: 'noticeFile',
         authorization: getToken()
       },
-      formLabelWidth: '60px'
+      formLabelWidth: '60px',
+      // 查看通知公告
+      showNoticeDetail: false,
+      isSee: false,
+      noticeDetail: {
+        title: '',
+        content: ''
+      }
     }
   },
   computed: {
@@ -264,17 +275,22 @@ export default {
       this.currentPage = val
       this._getNoticeList(this.search)
     },
-    seeNotice () {},
+    seeNotice (item) {
+      this.isSee = true
+      this.showNoticeDetail = true
+      this._getNoticeItem(item.tzggid)
+    },
     async addNotice () {
-      this.userIds = await getDepartmentPersonTree()
+      this.userIds = await getDepartmentPersonTree('getDepartmentPersonTree')
       this.showNoticeDialog = true
       this.isAdd = true
     },
     async editNotice (item) {
-      this.userIds = await getDepartmentPersonTree()
+      this.userIds = await getDepartmentPersonTree('getDepartmentPersonTree')
       this._getNoticeItem(item.tzggid)
       this.showNoticeDialog = true
       this.isAdd = false
+      this.isSee = false
     },
     cancelNoticeSet () {
       this.showNoticeDialog = false
@@ -455,30 +471,38 @@ export default {
         noticeId,
         url: 'getNoticeById'
       }
+      console.log(params)
       getNoticeItem(params).then((res) => {
         console.log(res)
         if (res.errcode === ERR_CODE) {
-          // debugger
-          let noticeItem = res.list[0]
-          this.noticeForm.tzggid = noticeItem.tzggid
-          this.noticeForm.type = noticeItem.lx
-          this.noticeForm.title = noticeItem.bt
-          this.noticeForm.ly = noticeItem.ly
-          this.noticeForm.nr = noticeItem.nr
-          this.noticeForm.imageUrl = noticeItem.tpwj
-          this.noticeForm.state = noticeItem.zt
-          console.log(this.noticeForm)
-          if (noticeItem.list_users) {
-            this.$refs.userTree.setCheckedKeys(noticeItem.list_users)
+          if (!this.isSee) {
+            let noticeItem = res.list[0]
+            this.noticeForm.tzggid = noticeItem.tzggid
+            this.noticeForm.type = noticeItem.lx
+            this.noticeForm.title = noticeItem.bt
+            this.noticeForm.ly = noticeItem.ly
+            this.noticeForm.nr = noticeItem.nr
+            this.noticeForm.imageUrl = noticeItem.tpwj
+            this.noticeForm.state = noticeItem.zt
+            console.log(this.noticeForm)
+            if (noticeItem.list_users) {
+              this.$refs.userTree.setCheckedKeys(noticeItem.list_users)
+            }
+            const fileArr = noticeItem.list_file_filePath
+            fileArr.map((item) => {
+              let file = {}
+              file.name = item.ysmc
+              file.url = item.dz
+              file.id = item.wjid
+              this.noticeForm.fjwj.push(file)
+            })
+          } else {
+            console.log(123)
+            this.noticeDetail = {}
+            let noticeItem = res.list[0]
+            this.noticeDetail.title = noticeItem.bt
+            this.noticeDetail.content = noticeItem.nr
           }
-          const fileArr = noticeItem.list_file_filePath
-          fileArr.map((item) => {
-            let file = {}
-            file.name = item.ysmc
-            file.url = item.dz
-            file.id = item.wjid
-            this.noticeForm.fjwj.push(file)
-          })
         }
       })
     },
@@ -527,4 +551,9 @@ export default {
         width: 175px
         height: 175px
         display: block
+      .seeNotice
+        h1
+          padding-bottom: 30px
+          text-align: center
+          font-size: 22px
 </style>

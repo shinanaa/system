@@ -41,6 +41,9 @@ export function addModuleItem (addParams) {
   return Http.postRequest(addParams.url, data)
 }
 
-export function getModuleTree (url) {
-  return Http.postRequest(url)
+export function getModuleTree (url, zt) {
+  const data = {
+    zt
+  }
+  return Http.postRequest(url, data)
 }

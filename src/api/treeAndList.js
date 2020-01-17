@@ -4,8 +4,8 @@ import {getDepartmentData} from '@/api/department'
 import {getUserTree} from '@/api/user'
 
 // 获取角色列表
-export function getRoleList (list) {
-  getRoleTree('getRoleTree').then((res) => {
+export function getRoleList (list, zt) {
+  getRoleTree('getRoleTree', zt).then((res) => {
     if (res.errcode === ERR_CODE) {
       console.log(res)
       let roleList = res.list
@@ -22,9 +22,9 @@ export function getRoleList (list) {
 }
 
 // 获取用户管理条件查询部门树
-export function getUserDepartmentTree () {
+export function getUserDepartmentTree (zt) {
   const p = new Promise(function (resolve, reject) {
-    getUserTree('getUserDepartmentTree').then((res) => {
+    getUserTree('getUserDepartmentTree', zt).then((res) => {
       if (res.errcode === ERR_CODE) {
         console.log(res.list)
         resolve(res.list)
@@ -51,9 +51,9 @@ export function getDepartmentTree () {
 }
 
 // 获取部门人员树
-export function getDepartmentPersonTree () {
+export function getDepartmentPersonTree (url) {
   const p = new Promise(function (resolve, reject) {
-    getUserTree('getDepartmentPersonTree').then((res) => {
+    getUserTree(url).then((res) => {
       if (res.errcode === ERR_CODE) {
         console.log(res.list)
         resolve(res.list)

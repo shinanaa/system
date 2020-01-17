@@ -203,7 +203,7 @@ export default {
   },
   created () {
     this._getPluginList(this.search)
-    getModuleTree('getModuleTree').then((res) => {
+    getModuleTree('getModuleTree', 'Y').then((res) => {
       if (res.errcode === ERR_CODE) {
         console.log(res)
         this.moduleList = res.list

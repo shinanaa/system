@@ -53,6 +53,9 @@ export function deleteUsers (info) {
   return Http.postRequest(info.url, data)
 }
 
-export function getUserTree (url) {
-  return Http.postRequest(url)
+export function getUserTree (url, zt) {
+  const data = {
+    zt: zt
+  }
+  return Http.postRequest(url, data)
 }
