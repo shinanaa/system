@@ -326,12 +326,12 @@ export default {
     },
     imgUpload (content) {
       this.isImgUpload = true
-      let url = 'http://192.168.1.81/gateway/system/system/file/upImage'
+      let url = 'http://www.netpaper.top:5000/gateway/system/system/file/upImage'
       this._noticeUpload(content.file, url)
     },
     annexUpload (content) {
       this.isImgUpload = false
-      let url = 'http://192.168.1.81/gateway/system/system/file/upFile'
+      let url = 'http://www.netpaper.top:5000/gateway/system/system/file/upFile'
       this._noticeUpload(content.file, url)
     },
     _noticeUpload (file, url) {

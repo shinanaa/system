@@ -3,7 +3,7 @@ import qs from 'qs'
 import store from '@/store'
 import {getToken} from 'common/js/cache'
 
-import { J_API } from '../../../config/dev.env'
+import { J_API } from '../../../config/prod.env'
 import i from './i'
 
 // 拦截器
