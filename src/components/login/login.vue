@@ -4,33 +4,31 @@
       <img src="@/common/img/logo.png" alt="">
     </div>
     <div class="main">
-      <div class="content">
-        <div class="login-wrapper">
-          <div class="login-type">
-            <ul>
-              <li class="type-item" :class="loginFlag === true ? 'active' : ''" @click="loginFlag = true">账号密码</li>
-              <li class="type-item" :class="loginFlag === false ? 'active' : ''" @click="loginFlag = false">手机验证</li>
-            </ul>
+      <div class="login-wrapper">
+        <div class="login-type">
+          <ul>
+            <li class="type-item" :class="loginFlag === true ? 'active' : ''" @click="loginFlag = true">账号密码</li>
+            <li class="type-item" :class="loginFlag === false ? 'active' : ''" @click="validIphone">手机验证</li>
+          </ul>
+        </div>
+        <div>
+          <div class="login-form">
+            <el-form v-show="loginFlag" class="login-form" :model="loginForm" :rules="rules" ref="loginForm">
+              <el-form-item prop="userName">
+                <el-input v-model="loginForm.userName" placeholder="请输入账号">
+                  <i slot="prefix" class="el-input__icon el-icon-user"></i>
+                </el-input>
+              </el-form-item>
+              <el-form-item prop="password">
+                <el-input v-model="loginForm.password" placeholder="请输入密码" @keyup.enter.native="login" show-password>
+                  <i slot="prefix" class="el-input__icon el-icon-lock"></i>
+                </el-input>
+              </el-form-item>
+              <!--<div class="findPwd">忘记密码？</div>-->
+              <el-button class="login-btn" @click.native.prevent="login">登录</el-button>
+            </el-form>
           </div>
-          <div>
-            <div class="login-form">
-              <el-form v-show="loginFlag" class="login-form" :model="loginForm" :rules="rules" ref="loginForm">
-                <el-form-item prop="userName">
-                  <el-input v-model="loginForm.userName" placeholder="请输入系统账号">
-                    <i slot="prefix" class="el-input__icon el-icon-user"></i>
-                  </el-input>
-                </el-form-item>
-                <el-form-item prop="password">
-                  <el-input v-model="loginForm.password" placeholder="请输入密码">
-                    <i slot="prefix" class="el-input__icon el-icon-lock"></i>
-                  </el-input>
-                </el-form-item>
-                <div class="findPwd">忘记密码？</div>
-                <el-button class="login-btn" @click.native.prevent="login">登录</el-button>
-              </el-form>
-            </div>
-            <div v-show="!loginFlag" class="login-phone">暂无内容</div>
-          </div>
+          <div v-show="!loginFlag" class="login-phone">暂无内容</div>
         </div>
       </div>
     </div>
@@ -63,12 +61,12 @@ export default {
     }
     return {
       loginForm: {
-        userName: '10228admin',
-        password: 'admin'
+        userName: '',
+        password: ''
       },
       rules: {
         userName: [
-          { required: true, message: '用户名不能为空', trigger: 'blur' },
+          { required: true, message: '账号不能为空', trigger: 'blur' },
           { required: true, trigger: 'blur', validator: validateUsername }
         ],
         password: [
@@ -80,6 +78,13 @@ export default {
     }
   },
   methods: {
+    validIphone () {
+      this.$message({
+        showClose: true,
+        message: '手机验证暂未开通',
+        type: 'warning'
+      })
+    },
     login () {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
@@ -122,20 +127,29 @@ export default {
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/mixin"
   @import "~common/stylus/variable"
-  .logo
-    minWidth()
-    margin-top: 60px
-    margin-bottom: 15px
-  .main
-    min-width: 1200px
-    padding: 110px 0
-    background-image: url('~common/img/login-bg.png')
-    background-position: center
-    .content
+  .login
+    position: absolute
+    top: 50%
+    margin: -350px 0 0 0
+    width: 100%
+    height: 720px
+    .logo
+      height: 120px
       minWidth()
-      clearfix()
+    .main
+      position: relative
+      height: 500px
+      width: 100%
+      min-width: 1200px
+      background-image: url('~common/img/login-bg.png')
+      background-size: 100%
+      background-position: center
+      background-repeat: no-repeat
       .login-wrapper
-        float: right
+        position: absolute
+        top: 50%
+        right: 5%
+        transform: translate(0, -50%)
         width: 320px
         padding: 20px 30px
         box-sizing:border-box
@@ -169,17 +183,20 @@ export default {
           margin-bottom: 15px
           background-color: $color-theme
           color: #FFF
-  .link
-    minWidth()
-    text-align: center
-    margin-top: 50px
-    b
-      display: inline-block
-      padding: 0 20px
-      color: $color-theme
-      font-weight: bold
-      border-right: 2px solid $color-theme
-      cursor: pointer
-      &:last-child
-        border: none
+    .link
+      minWidth()
+      padding-top: 45px
+      box-sizing: border-box
+      height: 100px
+      text-align: center
+      margin: auto
+      b
+        display: inline-block
+        padding: 0 20px
+        color: $color-theme
+        font-weight: bold
+        border-right: 2px solid $color-theme
+        cursor: pointer
+        &:last-child
+          border: none
 </style>

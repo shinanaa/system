@@ -2,15 +2,15 @@
     <div class="department common">
       <div class="search">
         <div class="search-item">
-          <span>名称：</span>
+          <span>名称</span>
           <el-input v-model="search.userName" placeholder="请输入内容"></el-input>
         </div>
       <div class="search-item">
-        <span>代码：</span>
+        <span>代码</span>
         <el-input v-model="search.code" placeholder="请输入代码"></el-input>
       </div>
         <div class="search-item">
-          <span>状态：</span>
+          <span>状态</span>
           <el-select v-model="search.state" placeholder="请选择">
             <el-option v-for="item in states" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>

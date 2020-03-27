@@ -2,10 +2,7 @@
     <div class="user common">
       <div class="search">
         <div class="search-item">
-          <span>部门：</span>
-          <!--<el-cascader-->
-            <!--v-model="search.department"-->
-            <!--:options="departments"></el-cascader>-->
+          <span>部门</span>
           <div style="display: inline-block;padding: 5px 10px;background: #ffffff;">
             <el-tree
               :data="departments"
@@ -17,7 +14,7 @@
           </div>
         </div>
         <div class="search-item">
-          <span>角色：</span>
+          <span>角色</span>
           <el-select v-model="search.role" placeholder="请选择">
             <el-option
               v-for="item in roles"
@@ -28,11 +25,11 @@
           </el-select>
         </div>
         <div class="search-item">
-          <span>名称：</span>
+          <span>名称</span>
           <el-input v-model="search.userName" placeholder="请输入内容"></el-input>
         </div>
         <div class="search-item">
-          <span>状态：</span>
+          <span>状态</span>
           <el-select v-model="search.state" placeholder="请选择">
             <el-option v-for="item in states" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>

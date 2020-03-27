@@ -2,17 +2,17 @@
     <div class="notice common">
       <div class="search">
         <div class="search-item">
-          <span>类型：</span>
+          <span>类型</span>
           <el-select v-model="search.type" placeholder="请选择">
             <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </div>
         <div class="search-item">
-          <span>标题：</span>
+          <span>标题</span>
           <el-input v-model="search.title" placeholder="请输入文章标题"></el-input>
         </div>
         <div class="search-item">
-          <span>状态：</span>
+          <span>状态</span>
           <el-select v-model="search.state" placeholder="请选择">
             <el-option v-for="item in states" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>

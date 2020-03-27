@@ -2,17 +2,17 @@
     <div class="log common">
       <div class="search">
         <div class="search-item">
-          <span>类型：</span>
+          <span>类型</span>
           <el-select v-model="search.type" placeholder="请选择">
             <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </div>
         <div class="search-item">
-          <span>用户：</span>
+          <span>用户</span>
           <el-input v-model="search.userName" placeholder="请输入内容"></el-input>
         </div>
         <div class="search-item">
-          <span>日期：</span>
+          <span>日期</span>
           <el-date-picker
             v-model="search.date"
             type="daterange"
