@@ -16,6 +16,7 @@
         <div class="search-item">
           <span>角色</span>
           <el-select v-model="search.role" placeholder="请选择">
+            <el-option value="" key="" label="全部"></el-option>
             <el-option
               v-for="item in roles"
               :key="item.value"
@@ -40,7 +41,8 @@
         <div class="table-btn">
           <div class="btn-handle">
             <el-button type="primary" @click="addUser">新增</el-button>
-            <el-button type="primary">导出</el-button>
+            <el-button type="primary" @click="downLoadMould">下载模板</el-button>
+            <el-button type="primary">导入</el-button>
             <el-button type="primary" @click="openDelDialog">批量删除</el-button>
           </div>
           <div class="btn-change">
@@ -161,7 +163,7 @@
 </template>
 
 <script>
-import {getUserList, editUserItem, addUserItem, getUserItem, deleteUsers} from '@/api/user'
+import {getUserList, editUserItem, addUserItem, getUserItem, deleteUsers, getMouldLink} from '@/api/user'
 import {getRoleList, getUserDepartmentTree, getDepartmentTree, getDepartmentPersonTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 export default {
@@ -246,6 +248,14 @@ export default {
     this.departments = await getUserDepartmentTree('Y')
   },
   methods: {
+    downLoadMould () {
+      getMouldLink('getMouldLink').then(res => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          window.open(res.path)
+        }
+      })
+    },
     async openDelDialog () {
       this.userIds = await getDepartmentPersonTree('getUserDepartmentPersonTree')
       this.showDelBulk = true

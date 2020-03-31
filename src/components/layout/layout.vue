@@ -30,8 +30,8 @@
           <el-dropdown>
             <div class="user">
               <div class="user-text">
-                <div class="username">用户名</div>
-                <div class="userIntroduce">后台管理员</div>
+                <div class="username">{{userName}}</div>
+                <div class="userIntroduce">{{role}}</div>
               </div>
               <img class="userImg" src="@/common/img/user.png" alt="">
             </div>
@@ -69,7 +69,7 @@
 
 <script>
 import {ERR_CODE} from 'common/js/config'
-import {mapActions} from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
 import {changePwd} from '@/api/login'
 export default {
   name: 'layout',
@@ -137,6 +137,12 @@ export default {
         }
       ]
     }
+  },
+  computed: {
+    ...mapGetters([
+      'userName',
+      'role'
+    ])
   },
   methods: {
     moduleListActive (index) {

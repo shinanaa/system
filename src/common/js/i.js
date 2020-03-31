@@ -11,6 +11,7 @@ const i = {
   addUserInfo: { url: 'gateway/system/system/user/insertUser' },
   deleteUserInfo: { url: 'gateway/system/system/user/deleteUser' },
   deleteUsers: { url: 'gateway/system/system/user/deleteUsers' },
+  getMouldLink: { url: 'gateway/system/system/user/downloadUser' }, // 下载导入模板
   // 模块管理
   getModuleTree: { url: 'gateway/system/system/module/queryModuleList' },
   getModuleById: { url: 'gateway/system/system/module/queryModuleById' },

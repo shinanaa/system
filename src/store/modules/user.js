@@ -1,32 +1,53 @@
 import * as types from '../mutation-types'
 import {ERR_CODE} from 'common/js/config'
 import {loginByUsername, logout} from '@/api/login'
-import {getToken, setToken, removeToken} from 'common/js/cache'
+import {getToken, setToken, removeToken, getUserRole, setUserRole, removeUserRole, getUserRoleId, setUserRoleId, removeUserRoleId, getUserLogin, setUserLogin, removeUserLogin, getUserName, setUserName, removeUserName} from 'common/js/cache'
 
 const user = {
   state: {
-    mc: '',
-    roles: '平台管理员',
-    token: getToken()
+    token: getToken(),
+    role: getUserRole(),
+    roleId: getUserRoleId(),
+    userLogin: getUserLogin(),
+    userName: getUserName()
   },
   mutations: {
     [types.SET_TOKEN] (state, token) {
       state.token = token
     },
+    [types.SET_USER_LOGIN] (state, userLogin) {
+      state.userLogin = userLogin
+    },
     [types.SET_USER_NAME] (state, mc) {
-      state.mc = mc
+      state.userName = mc
+    },
+    [types.SET_ROUTER] (state, moduleList) {
+      state.moduleList = moduleList
+    },
+    [types.SET_USER_ROLE] (state, role) {
+      state.role = role
+    },
+    [types.SET_USER_ROLE_ID] (state, roleId) {
+      state.roleId = roleId
     }
   },
   actions: {
     LoginByUsername ({commit}, userInfo) {
       return new Promise((resolve, reject) => {
         loginByUsername(userInfo).then((res) => {
+          console.log(res)
           const data = res
           if (data.errcode === ERR_CODE) {
             commit(types.SET_TOKEN, data.authorization)
             commit(types.SET_USER_NAME, data.mc)
+            commit(types.SET_USER_LOGIN, data.yhid)
+            commit(types.SET_USER_ROLE, data.jsmc)
+            commit(types.SET_USER_ROLE_ID, data.jsid)
             setToken(data.authorization)
-            // 还需提交用户的当前角色,后端未开发功能
+            setUserLogin(data.yhid)
+            setUserName(data.mc)
+            setUserRole(data.jsmc)
+            setUserRoleId(data.jsid)
           }
           resolve(data)
         }).catch((err) => {
@@ -40,7 +61,14 @@ const user = {
           console.log(res)
           commit(types.SET_TOKEN, '')
           commit(types.SET_USER_NAME, '')
+          commit(types.SET_USER_LOGIN, '')
+          commit(types.SET_USER_ROLE, '')
+          commit(types.SET_USER_ROLE_ID, '')
           removeToken()
+          removeUserLogin()
+          removeUserName()
+          removeUserRole()
+          removeUserRoleId()
           resolve()
         })
       })

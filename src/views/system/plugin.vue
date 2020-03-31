@@ -4,6 +4,7 @@
         <div class="search-item">
           <span>模块</span>
           <el-select v-model="search.module" placeholder="请选择">
+            <el-option value="" key="" label="全部"></el-option>
             <el-option v-for="item in moduleList" :key="item.mkid" :label="item.mc" :value="item.mkid"></el-option>
           </el-select>
         </div>

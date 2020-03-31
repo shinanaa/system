@@ -2,7 +2,7 @@
   <el-breadcrumb class="app-breadcrumb" separator-class="el-icon-arrow-right">
     <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
     <el-breadcrumb-item>系统管理模块</el-breadcrumb-item>
-    <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+    <el-breadcrumb-item>{{$route.meta.title}}</el-breadcrumb-item>
   </el-breadcrumb>
 </template>
 
