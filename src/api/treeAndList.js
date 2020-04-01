@@ -1,3 +1,4 @@
+import Http from 'common/js/request'
 import {ERR_CODE} from 'common/js/config'
 import {getRoleTree} from '@/api/role'
 import {getDepartmentData} from '@/api/department'
@@ -77,4 +78,8 @@ export function getPluginTree () {
     })
   })
   return p
+}
+
+export function uploadFile (info, url) {
+  return Http.postFile(url, info)
 }

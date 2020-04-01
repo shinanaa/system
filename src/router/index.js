@@ -5,7 +5,7 @@ Vue.use(Router)
 
 export default new Router({
   mode: 'history',
-  // base: 'portal/system/index.html',
+  // base: 'portal/system',
   routes: [
     { path: '/login', component: () => import('@/components/login/login') },
     { path: '/', redirect: '/home' },
@@ -28,6 +28,7 @@ export default new Router({
             { path: '/log', component: () => import('@/views/system/log'), meta: {title: '日志管理'} },
             { path: '/department', component: () => import('@/views/system/department'), meta: {title: '部门管理'} },
             { path: '/notice', component: () => import('@/views/system/notice'), meta: {title: '通知公告'} }
+            // { path: '/carousel', component: () => import('@/views/system/carousel'), meta: {title: '轮播管理'} }
           ]
         }
       ]

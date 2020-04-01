@@ -5,9 +5,8 @@
         <img src="@/common/img/logo-index.png" alt="">
       </router-link>
       <ul class="modules">
-        <li v-for="(item, index) in modules" :key="index" @mouseover="moduleListActive(index)" :class="{'active': activeIndex === index}">
-          <span><i class="icon el-icon-menu"></i></span>
-          <router-link tag="span" :to="item.url">{{item.name}}</router-link>
+        <li v-for="(item, index) in modules" :key="index" @mouseover="moduleListActive(index)" @click="moduleListItem(index, item)" :class="{'active': activeIndex === index}">
+          {{item.mc}}
         </li>
       </ul>
       <div class="right">
@@ -69,8 +68,10 @@
 
 <script>
 import {ERR_CODE} from 'common/js/config'
+import {setPluginList} from 'common/js/cache'
 import {mapActions, mapGetters} from 'vuex'
-import {changePwd} from '@/api/login'
+import {changePwd, getPluginList} from '@/api/login'
+import {getUserModule} from '@/api/user'
 export default {
   name: 'layout',
   data () {
@@ -102,49 +103,44 @@ export default {
       },
       showChangePwd: false,
       formLabelWidth: '100px',
-      modules: [
-        {
-          name: '系统管理模块',
-          url: '/system'
-        },
-        {
-          name: '单位管理',
-          url: '/system'
-        },
-        {
-          name: '题库管理',
-          url: '/system'
-        },
-        {
-          name: '试卷管理',
-          url: '/system'
-        },
-        {
-          name: '考试管理',
-          url: '/system'
-        },
-        {
-          name: '题库管理',
-          url: '/system'
-        },
-        {
-          name: '试卷管理',
-          url: '/system'
-        },
-        {
-          name: '考试管理',
-          url: '/system'
-        }
-      ]
+      modules: []
     }
   },
   computed: {
     ...mapGetters([
       'userName',
-      'role'
+      'role',
+      'userLogin',
+      'roleId'
     ])
   },
+  created () {
+    this._getUserModule()
+  },
   methods: {
+    moduleListItem (index, item) {
+      this.activeIndex = index
+      const getInfo = {
+        yhid: this.userLogin,
+        jsid: this.roleId,
+        mkid: item.mkid,
+        url: 'getPluginMenu'
+      }
+      getPluginList(getInfo).then((res) => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          console.log(res.menuList)
+          setPluginList(res.menuList)
+          if (item.mc === '系统管理') {
+            this.$router.push('/system')
+          }
+          if (item.mc === '单位管理') {
+            this.$router.push('/unit')
+          }
+        }
+      })
+      this.changeModule(item.mc)
+    },
     moduleListActive (index) {
       this.activeIndex = index
     },
@@ -179,8 +175,22 @@ export default {
         this.$router.push({ path: '/login' })
       })
     },
+    _getUserModule () {
+      const info = {
+        yhid: this.userLogin,
+        jsid: this.roleId,
+        url: 'getUserModule'
+      }
+      getUserModule(info).then(res => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          this.modules = res.list
+        }
+      })
+    },
     ...mapActions([
-      'logOut'
+      'logOut',
+      'changeModule'
     ])
   }
 }

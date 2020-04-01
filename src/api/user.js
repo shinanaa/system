@@ -60,6 +60,14 @@ export function getUserTree (url, zt) {
   return Http.postRequest(url, data)
 }
 
+export function getUserModule (info) {
+  const data = {
+    yhid: info.yhid,
+    jsid: info.jsid
+  }
+  return Http.postRequest(info.url, data)
+}
+
 export function getMouldLink (url) {
   return Http.postRequest(url)
 }

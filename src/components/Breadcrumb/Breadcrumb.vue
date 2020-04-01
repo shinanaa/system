@@ -1,14 +1,20 @@
 <template>
   <el-breadcrumb class="app-breadcrumb" separator-class="el-icon-arrow-right">
     <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-    <el-breadcrumb-item>系统管理模块</el-breadcrumb-item>
+    <el-breadcrumb-item>{{currentModule}}</el-breadcrumb-item>
     <el-breadcrumb-item>{{$route.meta.title}}</el-breadcrumb-item>
   </el-breadcrumb>
 </template>
 
 <script>
+import {mapGetters} from 'vuex'
 export default {
-  name: 'breadcrumb'
+  name: 'breadcrumb',
+  computed: {
+    ...mapGetters([
+      'currentModule'
+    ])
+  }
 }
 </script>
 

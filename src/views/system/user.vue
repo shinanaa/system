@@ -42,7 +42,14 @@
           <div class="btn-handle">
             <el-button type="primary" @click="addUser">新增</el-button>
             <el-button type="primary" @click="downLoadMould">下载模板</el-button>
-            <el-button type="primary">导入</el-button>
+            <el-upload
+              class="upload-demo"
+              action="#"
+              :http-request="imgUpload"
+              :show-file-list="false"
+              style="display: inline-block">
+              <el-button type="primary">导入</el-button>
+            </el-upload>
             <el-button type="primary" @click="openDelDialog">批量删除</el-button>
           </div>
           <div class="btn-change">
@@ -164,8 +171,9 @@
 
 <script>
 import {getUserList, editUserItem, addUserItem, getUserItem, deleteUsers, getMouldLink} from '@/api/user'
-import {getRoleList, getUserDepartmentTree, getDepartmentTree, getDepartmentPersonTree} from '@/api/treeAndList'
+import {getRoleList, getUserDepartmentTree, getDepartmentTree, getDepartmentPersonTree, uploadFile} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
+import {getToken} from 'common/js/cache'
 export default {
   name: 'user',
   data () {
@@ -256,6 +264,10 @@ export default {
         }
       })
     },
+    imgUpload (content) {
+      let url = 'uploadUser'
+      this._noticeUpload(content.file, url)
+    },
     async openDelDialog () {
       this.userIds = await getDepartmentPersonTree('getUserDepartmentPersonTree')
       this.showDelBulk = true
@@ -328,6 +340,24 @@ export default {
           }
         } else {
           return false
+        }
+      })
+    },
+    _noticeUpload (file, url) {
+      let ImgData = new FormData()
+      ImgData.append('upfile', file)
+      ImgData.append('fileType', 'tempFile')
+      ImgData.append('authorization', getToken())
+      uploadFile(ImgData, url).then((res) => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          if (res.reecode === ERR_CODE) {
+            this.$message({
+              showClose: true,
+              message: res.errmsg,
+              type: 'success'
+            })
+          }
         }
       })
     },

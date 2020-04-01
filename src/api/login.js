@@ -19,3 +19,12 @@ export function changePwd (pwdInfo) {
   }
   return Http.postRequest(pwdInfo.url, data)
 }
+// 根据用户信息来获取功能列表
+export function getPluginList (getInfo) {
+  const data = {
+    yhid: getInfo.yhid,
+    jsid: getInfo.jsid,
+    mkid: getInfo.mkid
+  }
+  return Http.postRequest(getInfo.url, data)
+}

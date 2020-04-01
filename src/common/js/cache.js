@@ -69,3 +69,29 @@ export function removeUserRoleId () {
   storage.session.remove(ROLEID_KEY)
   return ''
 }
+
+// 当前模块名称
+const CURRENT_MODULE_KEY = 'module-name'
+export function setModule (list) {
+  return storage.session.set(CURRENT_MODULE_KEY, list)
+}
+export function getModule () {
+  return storage.session.get(CURRENT_MODULE_KEY)
+}
+export function removeModule () {
+  storage.session.remove(CURRENT_MODULE_KEY)
+  return ''
+}
+
+// 左侧的功能列表
+const PLUGIN_LIST_KEY = 'plugin-list'
+export function setPluginList (list) {
+  return storage.session.set(PLUGIN_LIST_KEY, list)
+}
+export function getPluginList () {
+  return storage.session.get(PLUGIN_LIST_KEY)
+}
+export function removePluginList () {
+  storage.session.remove(PLUGIN_LIST_KEY)
+  return []
+}
