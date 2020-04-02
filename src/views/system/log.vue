@@ -68,11 +68,12 @@
                 <span class="info-key">内容</span>
                 <span class="info-value">{{item.zt === 'Y' ? '使用' : '禁用'}}</span>
               </div>
+              <div class="info-item">
+              </div>
             </div>
           </div>
         </div>
         <el-pagination
-          hide-on-single-page
           @current-change="pageChange"
           :current-page="currentPage"
           :page-size="pageSize"
@@ -86,8 +87,10 @@
 <script>
 import {getLogList} from '@/api/log'
 import {ERR_CODE} from 'common/js/config'
+import {pagingMixin} from 'common/js/mixin'
 export default {
   name: 'log',
+  mixins: [pagingMixin],
   data () {
     return {
       listType: true,
@@ -100,11 +103,7 @@ export default {
         type: '',
         date: ''
       },
-      logList: [],
-      // 分页
-      total: 0,
-      currentPage: 1,
-      pageSize: 5
+      logList: []
     }
   },
   created () {

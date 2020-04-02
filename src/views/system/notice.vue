@@ -87,7 +87,6 @@
           </div>
         </div>
         <el-pagination
-          hide-on-single-page
           @current-change="pageChange"
           :current-page="currentPage"
           :page-size="pageSize"
@@ -164,7 +163,7 @@
               </el-upload>
             </el-form-item>
             <el-form-item label="内容" :label-width="formLabelWidth" prop="nr">
-              <tinymce :height="300" v-model="noticeForm.nr" :id="tinymceId"></tinymce>
+              <tinymce :height="300" v-model="noticeForm.nr" :id="tinymceId" v-if="isTinymce"></tinymce>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -186,11 +185,14 @@ import {getNoticeInfo, uploadImg, addNoticeItem, getNoticeItem, editNoticeItem} 
 import {getDepartmentPersonTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 import Tinymce from '@/components/Tinymce'
+import {pagingMixin} from 'common/js/mixin'
 export default {
   name: 'notice',
+  mixins: [pagingMixin],
   components: {Tinymce},
   data () {
     return {
+      isTinymce: true,
       listType: true,
       search: {
         type: '',
@@ -207,10 +209,6 @@ export default {
         {value: '2', label: '发布'}
       ],
       noticeList: [],
-      // 分页
-      total: 0,
-      currentPage: 1,
-      pageSize: 5,
       // 弹窗
       isAdd: true,
       showNoticeDialog: false,
@@ -296,6 +294,10 @@ export default {
       this.showNoticeDialog = false
       this.$refs.noticeForm.resetFields()
       this.$refs.userTree.setCheckedKeys([])
+      this.isTinymce = false
+      this.$nextTick(() => {
+        this.isTinymce = true
+      })
       console.log(this.noticeForm)
     },
     submitNoticeSet () {

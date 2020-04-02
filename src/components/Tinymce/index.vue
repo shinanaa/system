@@ -11,6 +11,8 @@
 // import editorImage from './components/editorImage'
 import plugins from './plugins'
 import toolbar from './toolbar'
+import {uploadFile} from '@/api/carousel'
+import {ERR_CODE} from 'common/js/config'
 
 export default {
   name: 'tinymce',
@@ -72,6 +74,7 @@ export default {
         selector: `#${this.tinymceId}`,
         height: this.height,
         body_class: 'panel-body ',
+        statusbar: false, // 隐藏下方状态栏
         object_resizing: false,
         resize: false,
         toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
@@ -93,13 +96,29 @@ export default {
           }
           _this.hasInit = true
           editor.on('NodeChange Change KeyUp SetContent', () => {
-            // this.hasChange = true // 2020.1.15 注释，因编辑器内容只能回显第一次的值
+            this.hasChange = true
             this.$emit('input', editor.getContent())
           })
         },
         setup (editor) {
           editor.on('FullscreenStateChanged', (e) => {
             _this.fullscreen = e.state
+          })
+        },
+        // 新增 本地图片上传
+        images_upload_handler (blobInfo, success, failure) {
+          const url = 'uploadImg'
+          const formData = new FormData()
+          formData.append('upfile', blobInfo.blob())
+          formData.append('fileType', 'noticeFile')
+          uploadFile(formData, url).then((res) => {
+            console.log(res)
+            if (res.errcode === ERR_CODE) {
+              success(res.dz)
+            }
+          }).catch(err => {
+            failure('出现未知问题，刷新页面，或者联系程序员')
+            console.log(err)
           })
         }
         // 整合七牛上传

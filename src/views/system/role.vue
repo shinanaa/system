@@ -67,7 +67,6 @@
         </div>
       </div>
       <el-pagination
-        hide-on-single-page
         :page-size="pageSize"
         @current-change="pageChange"
         :current-page="currentPage"
@@ -125,8 +124,10 @@
 import {getRoleList, addRoleItem, editRoleItem, getRoleItem} from '@/api/role'
 import {getDepartmentPersonTree, getPluginTree} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
+import {pagingMixin} from 'common/js/mixin'
 export default {
   name: 'role',
+  mixins: [pagingMixin],
   data () {
     return {
       listType: true,
@@ -140,10 +141,6 @@ export default {
         {value: 'Y', label: '使用'}
       ],
       roleList: [],
-      // 分页
-      total: 0,
-      currentPage: 1,
-      pageSize: 5,
       // 弹窗
       isAdd: true,
       showRoleDialog: false,

@@ -111,7 +111,6 @@
             </div>
         </div>
         <el-pagination
-          hide-on-single-page
           @current-change="pageChange"
           :current-page="currentPage"
           :page-size="pageSize"
@@ -174,8 +173,10 @@ import {getUserList, editUserItem, addUserItem, getUserItem, deleteUsers, getMou
 import {getRoleList, getUserDepartmentTree, getDepartmentTree, getDepartmentPersonTree, uploadFile} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
 import {getToken} from 'common/js/cache'
+import {pagingMixin} from 'common/js/mixin'
 export default {
   name: 'user',
+  mixins: [pagingMixin],
   data () {
     return {
       listType: true,
@@ -192,10 +193,6 @@ export default {
       ],
       roles: [],
       userList: [],
-      // 分页
-      total: 0,
-      currentPage: 1,
-      pageSize: 5,
       // 弹窗
       isAdd: true,
       showUserDialog: false,
