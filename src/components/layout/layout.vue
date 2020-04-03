@@ -35,7 +35,9 @@
               <img class="userImg" src="@/common/img/user.png" alt="">
             </div>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>切换角色</el-dropdown-item>
+              <p v-if="roleList.length > 1" v-for="(item, index) in roleList" :key="index">
+                <el-dropdown-item><span @click="changeRoles(item)">切换到：{{item.mc}}</span></el-dropdown-item>
+              </p>
               <el-dropdown-item><span @click="showChangePwd = true">修改密码</span></el-dropdown-item>
               <el-dropdown-item><span @click="logout">退出登录</span></el-dropdown-item>
             </el-dropdown-menu>
@@ -71,7 +73,7 @@ import {ERR_CODE} from 'common/js/config'
 import {setPluginList} from 'common/js/cache'
 import {mapActions, mapGetters} from 'vuex'
 import {changePwd, getPluginList} from '@/api/login'
-import {getUserModule} from '@/api/user'
+import {getUserModule, getUserRole} from '@/api/user'
 export default {
   name: 'layout',
   data () {
@@ -103,7 +105,8 @@ export default {
       },
       showChangePwd: false,
       formLabelWidth: '100px',
-      modules: []
+      modules: [],
+      roleList: []
     }
   },
   computed: {
@@ -115,9 +118,17 @@ export default {
     ])
   },
   created () {
+    this._getUserRole()
     this._getUserModule()
   },
   methods: {
+    changeRoles (role) {
+      console.log(role)
+      this.changeRole(role).then(() => {
+        this._getUserModule()
+        this.$router.push('/home')
+      })
+    },
     moduleListItem (index, item) {
       this.activeIndex = index
       const getInfo = {
@@ -131,12 +142,7 @@ export default {
         if (res.errcode === ERR_CODE) {
           console.log(res.menuList)
           setPluginList(res.menuList)
-          if (item.mc === '系统管理') {
-            this.$router.push('/system')
-          }
-          if (item.mc === '单位管理') {
-            this.$router.push('/unit')
-          }
+          this.$router.push('/system')
         }
       })
       this.changeModule(item.mc)
@@ -175,6 +181,18 @@ export default {
         this.$router.push({ path: '/login' })
       })
     },
+    _getUserRole () {
+      const info = {
+        yhid: this.userLogin,
+        url: 'getUserRole'
+      }
+      getUserRole(info).then((res) => {
+        console.log(res)
+        if (res.errcode === ERR_CODE) {
+          this.roleList = res.list
+        }
+      })
+    },
     _getUserModule () {
       const info = {
         yhid: this.userLogin,
@@ -190,6 +208,7 @@ export default {
     },
     ...mapActions([
       'logOut',
+      'changeRole',
       'changeModule'
     ])
   }

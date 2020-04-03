@@ -32,6 +32,12 @@ const user = {
     }
   },
   actions: {
+    changeRole ({commit}, role) {
+      commit(types.SET_USER_ROLE_ID, role.jsid)
+      commit(types.SET_USER_ROLE, role.mc)
+      setUserRole(role.mc)
+      setUserRoleId(role.jsid)
+    },
     LoginByUsername ({commit}, userInfo) {
       return new Promise((resolve, reject) => {
         loginByUsername(userInfo).then((res) => {

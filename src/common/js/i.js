@@ -4,6 +4,7 @@ const i = {
   changePwd: { url: 'gateway/system/system/user/updatePassword' },
   uploadUser: { url: 'gateway/system/system/user/importUsers' },
   getPluginMenu: { url: 'gateway/system/system/plugin/showGn' }, // 获取菜单导航列表
+  uploadImg: { url: 'gateway/system/system/file/upImage' }, // 图片上传
   // 用户管理
   getUserDepartmentTree: { url: 'gateway/system/system/department/departmentTreeByQuery' }, // 用户条件查询使用
   getUserDepartmentPersonTree: { url: 'gateway/system/system/department/queryDepartmentPersonTreeByUser' }, // 批量删除用户时展现的列表
@@ -14,6 +15,7 @@ const i = {
   deleteUserInfo: { url: 'gateway/system/system/user/deleteUser' },
   deleteUsers: { url: 'gateway/system/system/user/deleteUsers' },
   getMouldLink: { url: 'gateway/system/system/user/downloadUser' }, // 下载导入模板
+  getUserRole: { url: 'gateway/system/system/user/showUserRole' }, // 获取当前用户的角色列表
   // 模块管理
   getModuleTree: { url: 'gateway/system/system/module/queryModuleList' },
   getModuleById: { url: 'gateway/system/system/module/queryModuleById' },

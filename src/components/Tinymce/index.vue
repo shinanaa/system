@@ -11,8 +11,9 @@
 // import editorImage from './components/editorImage'
 import plugins from './plugins'
 import toolbar from './toolbar'
-import {uploadFile} from '@/api/carousel'
+import {uploadFile} from '@/api/treeAndList'
 import {ERR_CODE} from 'common/js/config'
+import {getToken} from 'common/js/cache'
 
 export default {
   name: 'tinymce',
@@ -86,6 +87,7 @@ export default {
         code_dialog_width: 1000,
         advlist_bullet_styles: 'square',
         advlist_number_styles: 'default',
+        convert_urls: false,
         imagetools_cors_hosts: ['www.tinymce.com', 'codepen.io'],
         default_link_target: '_blank',
         link_title: false,
@@ -111,6 +113,9 @@ export default {
           const formData = new FormData()
           formData.append('upfile', blobInfo.blob())
           formData.append('fileType', 'noticeFile')
+          formData.append('authorization', getToken())
+          console.log(1)
+          console.log(url)
           uploadFile(formData, url).then((res) => {
             console.log(res)
             if (res.errcode === ERR_CODE) {

@@ -45,6 +45,7 @@ const Http = {
   postFile: function (url, param) {
     param = param && typeof param === 'object' ? param : {}
     url = J_API + i[url].url
+    console.log(url)
     const config = {
       url: url,
       method: 'post',

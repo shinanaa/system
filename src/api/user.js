@@ -68,6 +68,13 @@ export function getUserModule (info) {
   return Http.postRequest(info.url, data)
 }
 
+export function getUserRole (info) {
+  const data = {
+    yhid: info.yhid
+  }
+  return Http.postRequest(info.url, data)
+}
+
 export function getMouldLink (url) {
   return Http.postRequest(url)
 }
